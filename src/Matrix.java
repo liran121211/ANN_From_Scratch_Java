@@ -5,7 +5,12 @@ public class Matrix {
     private final int columns;
     private final double[][] matrix;
 
-
+    /**
+     * Default Matrix Constructor.
+     *
+     * @param n_rows    (Matrix number of rows).
+     * @param n_columns (Matrix number of columns).
+     */
     protected Matrix(int n_rows, int n_columns) {
         this.rows = Math.abs(n_rows);
         this.columns = Math.abs(n_columns);
@@ -17,6 +22,13 @@ public class Matrix {
             }
     }
 
+    /**
+     * Matrix Constructor.
+     *
+     * @param n_rows    (Matrix number of rows).
+     * @param n_columns (Matrix number of columns).
+     * @param B         (2D double array)
+     */
     protected Matrix(int n_rows, int n_columns, double[][] B) {
         this.rows = Math.abs(n_rows);
         this.columns = Math.abs(n_columns);
@@ -26,6 +38,13 @@ public class Matrix {
             System.arraycopy(B[i], 0, this.matrix[i], 0, this.columns);
     }
 
+    /**
+     * Vector Constructor.
+     *
+     * @param n_rows    (Matrix number of rows).
+     * @param n_columns (Matrix number of columns).
+     * @param V         (1D double array)
+     */
     protected Matrix(int n_rows, int n_columns, double[] V) {
         this.rows = Math.abs(n_rows);
         this.columns = Math.abs(n_columns);
@@ -43,6 +62,11 @@ public class Matrix {
         }
     }
 
+    /**
+     * Copy Constructor.
+     *
+     * @param B (Matrix object.)
+     */
     protected Matrix(Matrix B) {
         this.rows = B.rows;
         this.columns = B.columns;
@@ -54,26 +78,57 @@ public class Matrix {
         }
     }
 
-
+    /**
+     * Get number of rows of Matrix.
+     *
+     * @return (int) number of rows.
+     */
     public int getRows() {
         return rows;
     }
 
+    /**
+     * Get number of columns of Matrix.
+     *
+     * @return (int) number of columns.
+     */
     public int getColumns() {
         return columns;
     }
 
-    protected void setValue(int row, int column, double value) {
+    /**
+     * Set value into specific cell in the Matrix.
+     *
+     * @param row    (Matrix row number).
+     * @param column (Matrix column number).
+     * @param value  (double) value to insert.
+     */
+    protected void setValue(int row, int column, double value) throws IndexOutOfBoundsException {
         if (!(row > this.rows) && !(column > this.columns))
             this.matrix[row][column] = value;
+        throw new IndexOutOfBoundsException("row/column values are out of range.");
+
     }
 
-    protected double getValue(int row, int column) {
+    /**
+     * Retrive value from specific cell.
+     *
+     * @param row    (Matrix row number).
+     * @param column (Matrix column number).
+     * @return (double) value of specific Matrix cell.
+     */
+    protected double getValue(int row, int column) throws IndexOutOfBoundsException {
         if (!(row > this.rows) && !(column > this.columns))
             return this.matrix[row][column];
-        return 0.0;
+        throw new IndexOutOfBoundsException("row/column values are out of range.");
     }
 
+    /**
+     * Multiply current Matrix with given Matrix (B).
+     *
+     * @param B (Matrix object).
+     * @return new Matrix after multiplication.
+     */
     protected Matrix product(Matrix B) throws IndexOutOfBoundsException {
         if (this.columns != B.rows)
             throw new IndexOutOfBoundsException(String.format("Cannot Multiply (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
@@ -92,6 +147,12 @@ public class Matrix {
         return temp;
     }
 
+    /**
+     * Multiply (num) value to each cell of the Matrix.
+     *
+     * @param num (double value)
+     * @return Matrix with updated values.
+     */
     protected Matrix product(double num) {
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++)
@@ -100,6 +161,12 @@ public class Matrix {
         return this;
     }
 
+    /**
+     * Add values from given Matrix (B) to the current Matrix.
+     *
+     * @param B (Matrix object).
+     * @return Modified Matrix after addition.
+     */
     protected Matrix add(Matrix B) {
         if (this.rows != B.rows || this.columns != B.columns)
             throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
@@ -111,6 +178,12 @@ public class Matrix {
         return this;
     }
 
+    /**
+     * add (num) value to each cell of the Matrix.
+     *
+     * @param num (double value)
+     * @return Matrix with updated values.
+     */
     protected Matrix add(double num) {
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++)
@@ -119,6 +192,11 @@ public class Matrix {
         return this;
     }
 
+    /**
+     * Transpose matrix from nxm to mxn.
+     *
+     * @return transposed Matrix.
+     */
     protected Matrix transpose() {
         Matrix temp = new Matrix(this.columns, this.rows);
         for (int i = 0; i < temp.rows; i++) {
@@ -128,7 +206,11 @@ public class Matrix {
         return temp;
     }
 
-
+    /**
+     * Prints Matrix in 2D shape
+     *
+     * @return (Prettified Matrix String)
+     */
     @Override
     public String toString() {
         StringBuilder matrix_output = new StringBuilder();
@@ -143,6 +225,12 @@ public class Matrix {
         return matrix_output.toString();
     }
 
+    /**
+     * Compare values of current Matrix to the given one.
+     *
+     * @param obj (Matrix object)
+     * @return True if equals else false.
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Matrix) { // Validate matrices size
@@ -161,8 +249,12 @@ public class Matrix {
         return true;
     }
 
+    /**
+     * @param n_rows    (number of rows in matrix)
+     * @param n_columns (number of columns in matrix)
+     * @return (nxm Matrix filled with normal_distribution values)
+     */
     protected static Matrix random(int n_rows, int n_columns) {
-
         Matrix temp = new Matrix(Math.abs(n_rows), Math.abs(n_columns));
         for (int i = 0; i < temp.rows; i++) {
             for (int j = 0; j < temp.columns; j++)
