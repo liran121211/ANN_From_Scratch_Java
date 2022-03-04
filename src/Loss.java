@@ -10,11 +10,11 @@ class Loss_CategoricalCrossentropy extends Loss {
         Matrix y_pred_clipped = Matrix.clip(y_pred, 1e-7, 1 - 1e-7);
         Matrix correct_confidences = new Matrix(samples, 1);
 
-        if (y_true.getRows() == 1) {
+        if (y_true.getRows() == 1) { //1D array label data
             if (y_pred.getRows() == y_true.getColumns()) { // Check if Prediction size == Labels size
                 for (int i = 0; i < samples; i++)
                     correct_confidences.setValue(i, 0, y_pred_clipped.getValue(i, (int) y_true.getValue(0, i)));
-            } else
+            } else //2D array label data
                 throw new IndexOutOfBoundsException(String.format("Prediction Matrix (%s, %s) and Labels Matrix (, %s) has different shapes", y_pred.getRows(), y_pred.getColumns(), y_true.getColumns()));
 
         } else {

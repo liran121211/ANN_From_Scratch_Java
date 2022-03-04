@@ -11,7 +11,7 @@ public class Activation_ReLU implements Activation{
         this.outputs = new Matrix(inputs.getRows(), inputs.getColumns());
         for (int i = 0; i < inputs.getRows(); i++) {
             for (int j = 0; j < inputs.getColumns(); j++)
-                this.outputs.setValue(i, j, Math.max(0, inputs.getValue(i, j)));
+                this.outputs.setValue(i, j, Math.max(0.0, inputs.getValue(i, j)));
         }
     }
 

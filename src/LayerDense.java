@@ -1,9 +1,17 @@
-import javax.naming.NameNotFoundException;
+import com.github.sh0nk.matplotlib4j.NumpyUtils;
+import com.github.sh0nk.matplotlib4j.Plot;
+import com.github.sh0nk.matplotlib4j.PythonExecutionException;
+import com.github.sh0nk.matplotlib4j.builder.ContourBuilder;
+import org.apache.log4j.helpers.FormattingInfo;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class LayerDense {
     private Matrix weights;
     private Matrix biases;
-    private Matrix outputs;
+    private Matrix output;
 
     protected LayerDense(int n_inputs, int n_neurons) {
         this.weights = Matrix.random(n_inputs, n_neurons).multiply(0.01);
@@ -16,7 +24,7 @@ public class LayerDense {
      * @param inputs (Matrix object).
      */
     protected void forward(Matrix inputs) {
-        this.outputs = addBias(inputs.dot(this.weights), this.biases);
+        this.output = addBias(inputs.dot(this.weights), this.biases);
     }
 
 
@@ -31,10 +39,10 @@ public class LayerDense {
         return B;
     }
 
-    public static void main(String[] args) {
-        Matrix inputs = new Matrix(3, 4, new double[][]{{1.0, 2.0, 3.0, 2.5}, {2.0, 5.0, -1.0, 2.0}, {-1.5, 2.7, 3.3, -0.8}});
-        Matrix y = new Matrix(4, 3, new double[][]{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {0, 0, 0}});
-        LayerDense dense1 = new LayerDense(3, 3);
+    public static void main(String[] args) throws PythonExecutionException, IOException {
+        Matrix X = new Dataset().getX();
+        Matrix y = new Dataset().getY();
+        LayerDense dense1 = new LayerDense(2, 3);
         LayerDense dense2 = new LayerDense(3, 3);
 
         Activation activation1 = new Activation_ReLU();
@@ -42,16 +50,38 @@ public class LayerDense {
 
         Loss_CategoricalCrossentropy loss_function = new Loss_CategoricalCrossentropy();
 
-        dense1.forward(inputs.transpose());
-        activation1.forward(dense1.outputs);
-        dense2.forward(activation1.output());
-        activation2.forward(dense2.outputs);
-        System.out.println(activation2.output());
-        System.out.println(loss_function.forward(activation2.output(),y));
 
+        double lowest_loss = 9999999;
+        Matrix best_dense1_weights = new Matrix(dense1.weights);
+        Matrix best_dense1_bias = new Matrix(dense1.biases);
+        Matrix best_dense2_weights = new Matrix(dense2.weights);
+        Matrix best_dense2_bias = new Matrix(dense1.biases);
 
-//        Matrix softmax_outputs = new Matrix(3, 3, new double[][]{{0.7, 0.1, 5.2}, {0.1, 0.5, 0.4}, {0.02, 0.9, 0.08}});
-//        Matrix class_targets = new Matrix(3, 3, new double[][]{{1, 0, 0}, {0, 1, 0}, {0, 1, 0}});
+        for (int i = 0; i < 10000; i++) {
+            dense1.weights = Matrix.random(2, 3).multiply(0.05);
+            dense1.biases = Matrix.random(1, 3).multiply(0.05);
+            dense2.weights = Matrix.random(3, 3).multiply(0.05);
+            dense2.biases = Matrix.random(1, 3).multiply(0.05);
+
+            dense1.forward(X);
+            activation1.forward(dense1.output);
+            dense2.forward(activation1.output());
+            activation2.forward(dense2.output);
+
+            double loss = loss_function.calculate(loss_function.forward(activation2.output(), y));
+            Matrix prediction = activation2.output().argmax(1);
+            double accuracy = Matrix.bitwiseCompare(prediction, y).mean();
+
+            if (loss < lowest_loss) {
+                System.out.println(String.format("New set of weights found, iteration: %d loss: %s acc: %s", i, loss, accuracy));
+                best_dense1_weights = new Matrix(dense1.weights);
+                best_dense1_bias = new Matrix(dense1.biases);
+                best_dense2_weights = new Matrix(dense2.weights);
+                best_dense2_bias = new Matrix(dense2.biases);
+                lowest_loss = loss;
+            }
+        }
+        System.out.println(String.format("lowest loss %f", lowest_loss));
     }
 
 }
