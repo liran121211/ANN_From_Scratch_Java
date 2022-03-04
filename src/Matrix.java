@@ -106,12 +106,13 @@ public class Matrix {
     protected void setValue(int row, int column, double value) throws IndexOutOfBoundsException {
         if (!(row > this.rows) && !(column > this.columns))
             this.matrix[row][column] = value;
-        throw new IndexOutOfBoundsException("row/column values are out of range.");
+        else
+            throw new IndexOutOfBoundsException("row/column values are out of range.");
 
     }
 
     /**
-     * Retrive value from specific cell.
+     * Retrieve value from specific cell.
      *
      * @param row    (Matrix row number).
      * @param column (Matrix column number).
@@ -129,9 +130,9 @@ public class Matrix {
      * @param B (Matrix object).
      * @return new Matrix after multiplication.
      */
-    protected Matrix product(Matrix B) throws IndexOutOfBoundsException {
+    protected Matrix dot(Matrix B) throws IndexOutOfBoundsException {
         if (this.columns != B.rows)
-            throw new IndexOutOfBoundsException(String.format("Cannot Multiply (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+            throw new IndexOutOfBoundsException(String.format("Cannot Product (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
 
         Matrix temp = new Matrix(this.rows, B.columns);
         double cell;
@@ -153,10 +154,26 @@ public class Matrix {
      * @param num (double value)
      * @return Matrix with updated values.
      */
-    protected Matrix product(double num) {
+    protected Matrix multiply(double num) {
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++)
                 this.matrix[i][j] *= num;
+        }
+        return this;
+    }
+
+    /**
+     * Multiply each value to each cell of the Matrices.
+     *
+     * @param B (Matrix object)
+     * @return Matrix with updated values.
+     */
+    protected Matrix multiply(Matrix B) {
+        if (this.rows != B.rows || this.columns != B.columns)
+            throw new IndexOutOfBoundsException(String.format("Cannot Multiply (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++)
+                this.matrix[i][j] *= B.matrix[i][j];
         }
         return this;
     }
@@ -167,7 +184,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Modified Matrix after addition.
      */
-    protected Matrix add(Matrix B) {
+    protected Matrix add(Matrix B) throws IndexOutOfBoundsException {
         if (this.rows != B.rows || this.columns != B.columns)
             throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
 
@@ -204,6 +221,65 @@ public class Matrix {
                 temp.setValue(i, j, this.getValue(j, i));
         }
         return temp;
+    }
+
+    protected Matrix argmax(int axis) {
+        Matrix temp = new Matrix(1, this.columns);
+        if (axis == 0) {
+            for (int i = 0; i < this.getColumns(); i++) {
+                double max_val = this.getValue(0, i);
+                for (int j = 1; j < this.getRows(); j++)
+                    if (this.getValue(j, i) > max_val)
+                        max_val = this.getValue(j, i);
+                temp.setValue(0, i, max_val);
+            }
+        }
+        if (axis == 1) {
+            temp = temp.transpose();
+            for (int i = 0; i < this.getRows(); i++) {
+                double max_val = this.getValue(i, 0);
+                for (int j = 1; j < this.getColumns(); j++)
+                    if (this.getValue(i, j) > max_val)
+                        max_val = this.getValue(i, j);
+                temp.setValue(i, 0, max_val);
+            }
+            temp = temp.transpose();
+        }
+        return temp;
+    }
+
+    /**
+     * Return the log (e) value of each cell of the Matrix.
+     *
+     * @return Matrix with updated values.
+     */
+    protected Matrix log() {
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (this.matrix[i][j] <= 0.0) // Avoid log(0).
+                    this.matrix[i][j] = 1 - 1e-7;
+                else
+                    this.matrix[i][j] = Math.log(this.matrix[i][j]);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Return the mean value of the Matrix.
+     *
+     * @return (double value).
+     */
+    protected double mean() {
+        double mean = 0.0;
+        for (int i = 0; i < this.rows; i++)
+            for (int j = 0; j < columns; j++)
+                mean += this.matrix[i][j];
+        try {
+            return mean / (this.rows * this.columns);
+        } catch (ArithmeticException e) {
+            return 0.0;
+        }
     }
 
     /**
@@ -262,5 +338,21 @@ public class Matrix {
         }
         return temp;
     }
+
+    public static Matrix clip(Matrix B, double min, double max) {
+        Matrix temp = new Matrix(B.rows, B.columns);
+        for (int i = 0; i < B.rows; i++) {
+            for (int j = 0; j < B.columns; j++) {
+                if (B.matrix[i][j] < min)
+                    temp.matrix[i][j] = min;
+                else if (B.matrix[i][j] > max)
+                    temp.matrix[i][j] = max;
+                else
+                    temp.matrix[i][j] = B.matrix[i][j];
+            }
+        }
+        return temp;
+    }
+
 }
 
