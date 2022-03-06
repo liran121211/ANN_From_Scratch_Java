@@ -335,15 +335,18 @@ public class Matrix {
      * @return (Matrix object) vector contains indices of the maximum value of each column/row.
      */
     protected Matrix argmax(int axis) throws InvalidParameterException {
-        if (this.rows == 1)
+        if (this.rows == 1 || this.columns == 1) // if vector return (this).
             return this;
 
         int max_index = 0;
+        double max_val;
+
         if (axis == 0) {
             Matrix temp = new Matrix(1, this.columns);
 
             for (int i = 0; i < this.getColumns(); i++) {
-                double max_val = this.getValue(0, i);
+                max_val = this.getValue(0, i); //reset max val to cell (0,i)
+                max_index = 0; //reset max index to cell (0,i)
                 for (int j = 1; j < this.getRows(); j++)
                     if (this.getValue(j, i) > max_val) {
                         max_val = this.getValue(j, i);
@@ -355,8 +358,10 @@ public class Matrix {
         }
         if (axis == 1) {
             Matrix temp = new Matrix(this.rows, 1);
+
             for (int i = 0; i < this.getRows(); i++) {
-                double max_val = this.getValue(i, 0);
+                max_val = this.getValue(i, 0); //reset max val to cell (i,0)
+                max_index = 0; //reset max index to cell (i,0)
                 for (int j = 1; j < this.getColumns(); j++)
                     if (this.getValue(i, j) > max_val) {
                         max_val = this.getValue(i, j);
@@ -364,7 +369,7 @@ public class Matrix {
                     }
                 temp.setValue(i, 0, max_index);
             }
-            return temp.transpose();
+            return temp;
         } else
             throw new InvalidParameterException("Invalid axis provided.");
     }
@@ -417,7 +422,7 @@ public class Matrix {
             Matrix temp = new Matrix(1, this.columns);
             for (int i = 0; i < this.getColumns(); i++) {
                 double sum = 0.0;
-                for (int j = 1; j < this.getRows(); j++)
+                for (int j = 0; j < this.getRows(); j++)
                     sum += this.getValue(j, i);
                 temp.setValue(0, i, sum);
             }
@@ -427,7 +432,7 @@ public class Matrix {
             Matrix temp = new Matrix(this.rows, 1);
             for (int i = 0; i < this.getRows(); i++) {
                 double sum = 0.0;
-                for (int j = 1; j < this.getColumns(); j++)
+                for (int j = 0; j < this.getColumns(); j++)
                     sum += this.getValue(i, j);
                 temp.setValue(i, 0, sum);
             }
