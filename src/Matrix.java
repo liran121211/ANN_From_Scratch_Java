@@ -1,4 +1,5 @@
 import java.security.InvalidParameterException;
+import java.util.InputMismatchException;
 import java.util.Random;
 
 public class Matrix {
@@ -41,32 +42,6 @@ public class Matrix {
             System.arraycopy(B[i], 0, this.matrix[i], 0, this.columns);
     }
 
-//    /**
-//     * Vector Constructor.
-//     *
-//     * @param n_rows    (Matrix number of rows).
-//     * @param n_columns (Matrix number of columns).
-//     * @param V         (1D double array)
-//     */
-//    protected Matrix(int n_rows, int n_columns, double[] V) {
-//        this.rows = Math.abs(n_rows);
-//        this.columns = Math.abs(n_columns);
-//        this.matrix = new double[rows][columns];
-//
-//        if (B.length != n_rows || B[0].length != n_columns)
-//            throw new IndexOutOfBoundsException(String.format("Given dimensions (%s, %s) are different from given Matrix (%s, %s)", n_rows, n_columns, B.length, B[0].length));
-//
-//        for (int i = 0; i < this.rows; i++) { //Init (n) Lists.
-//            for (int j = 0; j < this.columns; j++) {
-//                if (this.rows > this.columns)
-//                    this.matrix[i][j] = V[i];
-//                else if (this.columns > this.rows)
-//                    this.matrix[i][j] = V[j];
-//                else
-//                    this.matrix[i][j] = V[i];
-//            }
-//        }
-//    }
 
     /**
      * Copy Constructor.
@@ -137,6 +112,9 @@ public class Matrix {
      * @return new Matrix after multiplication.
      */
     protected Matrix dot(Matrix B) throws IndexOutOfBoundsException {
+        if (vectorsMultiplication(this, B) != -1)// return multiplication value of 2 vectors.
+            return new Matrix(1, 1, new double[][]{{vectorsMultiplication(this, B)}});
+
         if (this.columns != B.rows)
             throw new IndexOutOfBoundsException(String.format("Cannot Product (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
 
@@ -191,6 +169,20 @@ public class Matrix {
      * @return Modified Matrix after addition.
      */
     protected Matrix add(Matrix B) throws IndexOutOfBoundsException {
+        if (B.rows == this.rows && B.columns == 1) { // if 1D array
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.columns; j++)
+                    this.matrix[i][j] += B.matrix[i][0];
+            }
+            return this;
+        } else if (B.columns == this.columns && B.rows == 1) { // if 1D array
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.columns; j++)
+                    this.matrix[i][j] += B.matrix[0][j];
+            }
+            return this;
+        }
+
         if (this.rows != B.rows || this.columns != B.columns)
             throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
 
@@ -548,6 +540,17 @@ public class Matrix {
         return temp;
     }
 
+    protected static Matrix maximum(Matrix B, double value) {
+        Matrix temp = new Matrix(B.rows, B.columns);
+
+        for (int i = 0; i < B.rows; i++) {
+            for (int j = 0; j < B.columns; j++) {
+                temp.setValue(i, j, Math.max(0, value));
+            }
+        }
+        return temp;
+    }
+
     public static Matrix bitwiseCompare(Matrix A, Matrix B) throws IndexOutOfBoundsException {
         if (A.rows != B.rows || A.columns != B.columns)
             throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", A.rows, A.columns, B.rows, B.columns));
@@ -562,6 +565,45 @@ public class Matrix {
             }
         }
         return temp;
+    }
+
+    /**
+     * Returns Matrix of zeros with the same shape and type as a given Matrix.
+     *
+     * @param B (Matrix object).
+     * @return Zero Values Matrix.
+     */
+    protected static Matrix zeros_like(Matrix B) {
+        return new Matrix(B.rows, B.columns);
+    }
+
+    private static double vectorsMultiplication(Matrix V1, Matrix V2) {
+        double sum_values = 0.0;
+        if (V1.columns == 1 && V2.columns == 1 && V1.rows == V2.rows) {
+            for (int i = 0; i < V1.rows; i++) {
+                sum_values += V1.matrix[i][0] * V2.matrix[i][0];
+            }
+        } else if (V1.rows == 1 && V2.rows == 1 && V1.columns == V2.columns) {
+            for (int j = 0; j < V1.columns; j++) {
+                sum_values += V1.matrix[0][j] * V2.matrix[0][j];
+            }
+        } else
+            return -1;
+        return sum_values;
+    }
+
+    protected static double sumRow(Matrix V, int row) {
+        double sum_values = 0.0;
+        for (int i = 0; i < V.columns; i++)
+            sum_values += V.matrix[row][i];
+        return sum_values;
+    }
+
+    protected static double sumColumn(Matrix V, int column) {
+        double sum_values = 0.0;
+        for (int i = 0; i < V.rows; i++)
+            sum_values += V.matrix[i][column];
+        return sum_values;
     }
 
 }

@@ -17,5 +17,8 @@ public class Activation_SoftMax implements Activation {
         this.outputs = new Matrix(exp_values.divide(np_sum));
     }
 
-
+    @Override
+    public void backwards(Matrix d_values) {
+        //TODO
+    }
 }
