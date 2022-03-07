@@ -1,5 +1,7 @@
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Random;
 
 public class Matrix {
@@ -153,8 +155,24 @@ public class Matrix {
      * @return Matrix with updated values.
      */
     protected Matrix multiply(Matrix B) {
+        if (B.rows == this.rows && B.columns == 1) { // if 1D array
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.columns; j++)
+                    this.matrix[i][j] *= B.matrix[i][0];
+            }
+            return this;
+
+        } else if (B.columns == this.columns && B.rows == 1) { // if 1D array
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.columns; j++)
+                    this.matrix[i][j] *= B.matrix[0][j];
+            }
+            return this;
+        }
+
         if (this.rows != B.rows || this.columns != B.columns)
-            throw new IndexOutOfBoundsException(String.format("Cannot Multiply (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+            throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++)
                 this.matrix[i][j] *= B.matrix[i][j];
@@ -175,6 +193,7 @@ public class Matrix {
                     this.matrix[i][j] += B.matrix[i][0];
             }
             return this;
+
         } else if (B.columns == this.columns && B.rows == 1) { // if 1D array
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.columns; j++)
@@ -245,6 +264,19 @@ public class Matrix {
         return this;
     }
 
+    /**
+     * divide (num) value to each cell of the Matrix.
+     *
+     * @param num (double value)
+     * @return Matrix with updated values.
+     */
+    protected Matrix divide(double num) {
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++)
+                this.matrix[i][j] /= num;
+        }
+        return this;
+    }
 
     /**
      * Divide values from given Matrix (B) to the current Matrix.
@@ -278,6 +310,45 @@ public class Matrix {
         return this;
     }
 
+    protected Matrix reshape(int n_rows, int n_columns) {
+        Matrix flatten_matrix = Matrix.flat(this);
+        int index = 0;
+
+        if (Math.abs(n_rows * n_columns) == Math.abs(this.rows * this.columns)) {
+            Matrix temp = new Matrix(n_rows, n_columns);
+            for (int i = 0; i < temp.rows; i++) {
+                for (int j = 0; j < temp.columns; j++) {
+                    temp.setValue(i, j, flatten_matrix.getValue(0, index));
+                    index++;
+                }
+            }
+            return temp;
+
+        } else if (n_rows == -1 && Math.abs(n_columns) <= Math.abs(this.rows * this.columns)) { // number of rows is arbitrary.
+            int rows = Math.abs((this.rows * this.columns) / n_columns);
+            Matrix temp = new Matrix(rows, n_columns);
+            for (int i = 0; i < temp.rows; i++) {
+                for (int j = 0; j < temp.columns; j++) {
+                    temp.setValue(i, j, flatten_matrix.getValue(0, index));
+                    index++;
+                }
+            }
+            return temp;
+
+        } else if (n_columns == -1 && Math.abs(n_rows) <= Math.abs(this.rows * this.columns)) { // number of columns is arbitrary.
+            int columns = Math.abs((this.rows * this.columns) / n_rows);
+            Matrix temp = new Matrix(n_rows, columns);
+            for (int i = 0; i < temp.rows; i++) {
+                for (int j = 0; j < temp.columns; j++) {
+                    temp.setValue(i, j, flatten_matrix.getValue(0, index));
+                    index++;
+                }
+            }
+            return temp;
+        }
+        throw new InputMismatchException(String.format("Given (%s, %s) are invalid for reshape.", n_rows, n_columns));
+    }
+
     /**
      * raise by E each cell of the Matrix.
      *
@@ -301,6 +372,22 @@ public class Matrix {
         for (int i = 0; i < temp.rows; i++) {
             for (int j = 0; j < temp.columns; j++)
                 temp.setValue(i, j, this.getValue(j, i));
+        }
+        return temp;
+    }
+
+    protected Matrix getRow(int row) {
+        Matrix temp = new Matrix(1, this.columns);
+        for (int i = 0; i < this.columns; i++) {
+            temp.setValue(0, i, this.getValue(row, i));
+        }
+        return temp;
+    }
+
+    protected Matrix getColumn(int column) {
+        Matrix temp = new Matrix(this.rows, 1);
+        for (int i = 0; i < this.rows; i++) {
+            temp.setValue(i, 0, this.getValue(i, column));
         }
         return temp;
     }
@@ -562,6 +649,103 @@ public class Matrix {
                     temp.matrix[i][j] = 1.0;
                 else
                     temp.matrix[i][j] = 0.0;
+            }
+        }
+
+        return temp;
+    }
+
+    /**
+     * Create Diagonal (ones) Matrix.
+     *
+     * @param n_rows (number of rows).
+     * @return Diagnal Matrix.
+     */
+    public static Matrix eye(int n_rows) {
+        Matrix temp = new Matrix(Math.abs(n_rows), Math.abs(n_rows));
+        for (int i = 0; i < temp.rows; i++) {
+            for (int j = 0; j < temp.columns; j++) {
+                if (i == j)
+                    temp.setValue(i, j, 1.0);
+            }
+        }
+        return temp;
+    }
+
+    public static Matrix oneHotVector(Matrix V) throws IndexOutOfBoundsException {
+        Matrix temp = new Matrix(V.columns, V.columns); //(m, m) Matrix
+
+        if (V.getRows() == 1)
+            for (int i = 0; i < V.getColumns(); i++)
+                temp.setValue(i, (int) (V.getValue(0, i)), 1.0);
+        else
+            throw new IndexOutOfBoundsException(String.format("Provided Matrix is not in Vector shape (%s,%s)", V.rows, V.columns));
+
+        return temp;
+    }
+
+    /**
+     * Create a 2D Matrix with the array_like input as a diagonal to the new output array.
+     *
+     * @param B (Matrix object).
+     * @return Diagnal Matrix with the given Vector values.
+     */
+    public static Matrix diagflat(Matrix B) throws IndexOutOfBoundsException {
+        if (B.rows == 1) {
+            Matrix temp = new Matrix(B.columns, B.columns);
+            for (int i = 0; i < temp.rows; i++) {
+                for (int j = 0; j < temp.columns; j++) {
+                    if (i == j)
+                        temp.setValue(i, j, B.getValue(0, i));
+                }
+            }
+            return temp;
+
+        } else if (B.columns == 1) {
+            Matrix temp = new Matrix(B.rows, B.rows);
+            B = B.transpose();
+            for (int i = 0; i < temp.rows; i++) {
+                for (int j = 0; j < temp.columns; j++) {
+                    if (i == j)
+                        temp.setValue(i, j, B.getValue(0, i));
+                }
+            }
+            return temp;
+        } else
+            throw new IndexOutOfBoundsException(String.format("Provided Matrix is not in Vector shape (%s,%s)", B.rows, B.columns));
+    }
+
+    /**
+     * Create Diagonal (ones) Matrix.
+     *
+     * @param n_rows    (number of rows).
+     * @param n_columns (number of columns)
+     * @return Diagnal Matrix.
+     */
+    public static Matrix eye(int n_rows, int n_columns) {
+        Matrix temp = new Matrix(Math.abs(n_rows), Math.abs(n_columns));
+        for (int i = 0; i < temp.rows; i++) {
+            for (int j = 0; j < temp.columns; j++) {
+                if (i == j)
+                    temp.setValue(i, j, 1.0);
+            }
+        }
+        return temp;
+    }
+
+    /**
+     * Flat Matrix from 2D to 1D array.
+     *
+     * @param B (Matrix object).
+     * @return flatted Matrix.
+     */
+    protected static Matrix flat(Matrix B) {
+        Matrix temp = new Matrix(1, B.rows * B.columns);
+        int index = 0;
+        for (int i = 0; i < B.rows; i++) {
+            for (int j = 0; j < B.columns; j++) {
+                temp.setValue(0, index, B.getValue(i, j));
+                index++;
             }
         }
         return temp;

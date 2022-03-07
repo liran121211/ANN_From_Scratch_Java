@@ -1,6 +1,7 @@
 import com.github.sh0nk.matplotlib4j.PythonExecutionException;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class LayerDense {
     private Matrix weights;
@@ -177,6 +178,20 @@ public class LayerDense {
 //
 //        System.out.println(weights);
 //        System.out.println(biases);
+        Matrix y_label = new Matrix(1, 5, new double[][]{{4, 3, 2, 1, 0}});
+        Matrix inputs = new Matrix(3, 4, new double[][]{
+                {1.0, 2.0, 3.0, 2.5},
+                {2.0, 5.0, -1.0, 2.0},
+                {-1.5, 2.7, 3.3, -0.8}});
+        Matrix softmax_output = new Matrix(1, 3, new double[][]{{0.7, 0.1, 0.2}});
+        softmax_output = softmax_output.reshape(-1, 1);
+
+        for (int i = 0; i < inputs.getColumns(); i++) {
+            System.out.println(inputs.getColumn(i));
+        }
+
+        //System.out.println();
+
     }
 
 }

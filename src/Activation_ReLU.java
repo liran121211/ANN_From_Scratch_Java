@@ -27,7 +27,7 @@ public class Activation_ReLU implements Activation {
     }
 
     @Override
-    public void backwards(Matrix d_values) {
+    public void backward(Matrix d_values) {
         this.d_inputs = new Matrix(d_values);
         for (int i = 0; i < d_inputs.getRows(); i++) {
             for (int j = 0; j < d_inputs.getColumns(); j++) {
