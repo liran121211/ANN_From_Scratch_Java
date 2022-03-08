@@ -20,7 +20,7 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
     }
 
 
-    public double forward(Matrix inputs, Matrix y_true) {
+    public double forward(Matrix inputs, Matrix y_true) throws InvalidMatrixOperation, InvalidMatrixAxis, MatrixIndexesOutOfBounds, InvalidMatrixDimension {
         this.activation.forward(inputs);
         this.output = this.activation.output();
 
@@ -28,7 +28,7 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
         return this.loss.calculate(forward_matrix);
     }
 
-    public void backward(Matrix d_values, Matrix y_true) {
+    public void backward(Matrix d_values, Matrix y_true) throws InvalidMatrixAxis, MatrixIndexesOutOfBounds, InvalidMatrixDimension {
         if (y_true.shape() == 2)
             y_true = y_true.argmax(1);
 

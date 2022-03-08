@@ -13,9 +13,12 @@ public class Matrix {
      * @param n_rows    (Matrix number of rows).
      * @param n_columns (Matrix number of columns).
      */
-    protected Matrix(int n_rows, int n_columns) {
-        this.rows = Math.abs(n_rows);
-        this.columns = Math.abs(n_columns);
+    protected Matrix(int n_rows, int n_columns) throws InvalidMatrixDimension {
+        if (n_rows <= 0 || n_columns <= 0)
+            throw new InvalidMatrixDimension(n_rows, n_columns);
+
+        this.rows = n_rows;
+        this.columns = n_columns;
         this.matrix = new double[rows][columns];
 
         for (int i = 0; i < this.rows; i++) //Init (n) Lists.
@@ -31,13 +34,16 @@ public class Matrix {
      * @param n_columns (Matrix number of columns).
      * @param B         (2D double array)
      */
-    protected Matrix(int n_rows, int n_columns, double[][] B) throws IndexOutOfBoundsException {
-        this.rows = Math.abs(n_rows);
-        this.columns = Math.abs(n_columns);
-        this.matrix = new double[rows][columns];
+    protected Matrix(int n_rows, int n_columns, double[][] B) throws InvalidMatrixDimension {
+        if (n_rows <= 0 || n_columns <= 0)
+            throw new InvalidMatrixDimension(n_rows, n_columns);
 
         if (B.length != n_rows || B[0].length != n_columns)
-            throw new IndexOutOfBoundsException(String.format("Matrix Creation Error: given dimensions (%s, %s) are different from given Matrix (%s, %s)", n_rows, n_columns, B.length, B[0].length));
+            throw new InvalidMatrixDimension(n_rows, n_columns, B);
+
+        this.rows = n_rows;
+        this.columns = n_columns;
+        this.matrix = new double[rows][columns];
         for (int i = 0; i < this.rows; i++) //Init (n) Lists.
             System.arraycopy(B[i], 0, this.matrix[i], 0, this.columns);
     }
@@ -48,7 +54,7 @@ public class Matrix {
      *
      * @param B (Matrix object.)
      */
-    protected Matrix(Matrix B) {
+    protected Matrix(Matrix B) throws MatrixIndexesOutOfBounds {
         this.rows = B.rows;
         this.columns = B.columns;
         this.matrix = new double[rows][columns];
@@ -84,12 +90,11 @@ public class Matrix {
      * @param column (Matrix column number).
      * @param value  (double) value to insert.
      */
-    protected void setValue(int row, int column, double value) throws IndexOutOfBoundsException {
+    protected void setValue(int row, int column, double value) throws MatrixIndexesOutOfBounds {
         if (!(row > this.rows) && !(column > this.columns))
             this.matrix[row][column] = value;
         else
-            throw new IndexOutOfBoundsException("row/column values are out of range.");
-
+            throw new MatrixIndexesOutOfBounds(row, column);
     }
 
     /**
@@ -99,10 +104,10 @@ public class Matrix {
      * @param column (Matrix column number).
      * @return (double) value of specific Matrix cell.
      */
-    protected double getValue(int row, int column) throws IndexOutOfBoundsException {
+    protected double getValue(int row, int column) throws MatrixIndexesOutOfBounds {
         if (!(row > this.rows) && !(column > this.columns))
             return this.matrix[row][column];
-        throw new IndexOutOfBoundsException("row/column values are out of range.");
+        throw new MatrixIndexesOutOfBounds(row, column);
     }
 
     /**
@@ -111,12 +116,12 @@ public class Matrix {
      * @param B (Matrix object).
      * @return new Matrix after multiplication.
      */
-    protected Matrix dot(Matrix B) throws IndexOutOfBoundsException {
+    protected Matrix dot(Matrix B) throws InvalidMatrixOperation, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (vectorsMultiplication(this, B) != -1)// return multiplication value of 2 vectors.
             return new Matrix(1, 1, new double[][]{{vectorsMultiplication(this, B)}});
 
         if (this.columns != B.rows)
-            throw new IndexOutOfBoundsException(String.format("Cannot Product (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+            throw new InvalidMatrixOperation(this, B, "product");
 
         Matrix temp = new Matrix(this.rows, B.columns);
         double cell;
@@ -152,7 +157,7 @@ public class Matrix {
      * @param B (Matrix object)
      * @return Matrix with updated values.
      */
-    protected Matrix multiply(Matrix B) {
+    protected Matrix multiply(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.columns; j++)
@@ -169,7 +174,7 @@ public class Matrix {
         }
 
         if (this.rows != B.rows || this.columns != B.columns)
-            throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+            throw new InvalidMatrixOperation(this, B, "multiply");
 
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++)
@@ -184,7 +189,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Modified Matrix after addition.
      */
-    protected Matrix add(Matrix B) throws IndexOutOfBoundsException {
+    protected Matrix add(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.columns; j++)
@@ -201,7 +206,7 @@ public class Matrix {
         }
 
         if (this.rows != B.rows || this.columns != B.columns)
-            throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+            throw new InvalidMatrixOperation(this, B, "add");
 
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++)
@@ -244,7 +249,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Modified Matrix after subtraction.
      */
-    protected Matrix subtract(Matrix B) throws IndexOutOfBoundsException {
+    protected Matrix subtract(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.columns; j++)
@@ -253,7 +258,7 @@ public class Matrix {
             return this;
         }
         if (this.rows != B.rows || this.columns != B.columns)
-            throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+            throw new InvalidMatrixOperation(this, B, "subtract");
 
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++)
@@ -282,7 +287,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Modified Matrix after Division.
      */
-    protected Matrix divide(Matrix B) throws IndexOutOfBoundsException {
+    protected Matrix divide(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.columns; j++) {
@@ -295,7 +300,7 @@ public class Matrix {
             return this;
         }
         if (this.rows != B.rows || this.columns != B.columns)
-            throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", this.rows, this.columns, B.rows, B.columns));
+            throw new InvalidMatrixOperation(this, B, "divide");
 
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++) {
@@ -315,7 +320,7 @@ public class Matrix {
      * @param n_columns (number of columns).
      * @return Reshaped Matrix.
      */
-    protected Matrix reshape(int n_rows, int n_columns) {
+    protected Matrix reshape(int n_rows, int n_columns) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix flatten_matrix = Matrix.flat(this);
         int index = 0;
 
@@ -351,7 +356,7 @@ public class Matrix {
             }
             return temp;
         }
-        throw new InputMismatchException(String.format("Given (%s, %s) are invalid for reshape.", n_rows, n_columns));
+        throw new InvalidMatrixDimension(n_rows, n_columns);
     }
 
     /**
@@ -372,7 +377,7 @@ public class Matrix {
      *
      * @return transposed Matrix.
      */
-    protected Matrix transpose() {
+    protected Matrix transpose() throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(this.columns, this.rows);
         for (int i = 0; i < temp.rows; i++) {
             for (int j = 0; j < temp.columns; j++)
@@ -387,7 +392,7 @@ public class Matrix {
      * @param row (row number).
      * @return Vector of specific row.
      */
-    protected Matrix getRow(int row) {
+    protected Matrix getRow(int row) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(1, this.columns);
         for (int i = 0; i < this.columns; i++) {
             temp.setValue(0, i, this.getValue(row, i));
@@ -401,7 +406,7 @@ public class Matrix {
      * @param column (column number).
      * @return Vector of specific column.
      */
-    protected Matrix getColumn(int column) {
+    protected Matrix getColumn(int column) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(this.rows, 1);
         for (int i = 0; i < this.rows; i++) {
             temp.setValue(i, 0, this.getValue(i, column));
@@ -444,11 +449,11 @@ public class Matrix {
      * @param axis (0 or 1).
      * @return (Matrix object) vector contains indices of the maximum value of each column/row.
      */
-    protected Matrix argmax(int axis) throws InvalidParameterException {
+    protected Matrix argmax(int axis) throws InvalidMatrixAxis, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (this.rows == 1 || this.columns == 1) // if vector return (this).
             return this;
 
-        int max_index = 0;
+        int max_index;
         double max_val;
 
         if (axis == 0) {
@@ -481,7 +486,7 @@ public class Matrix {
             }
             return temp;
         } else
-            throw new InvalidParameterException("Invalid axis provided.");
+            throw new InvalidMatrixAxis(axis);
     }
 
 
@@ -491,7 +496,7 @@ public class Matrix {
      * @param axis (0 or 1).
      * @return (Matrix object) vector with max values of each column/row.
      */
-    protected Matrix max(int axis) throws InvalidParameterException {
+    protected Matrix max(int axis) throws InvalidMatrixAxis, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (this.rows == 1)
             return new Matrix(1, 1, new double[][]{{this.max()}});
 
@@ -518,7 +523,7 @@ public class Matrix {
             return temp;
 
         } else
-            throw new InvalidParameterException("Invalid axis provided.");
+            throw new InvalidMatrixAxis(axis);
     }
 
     /**
@@ -527,7 +532,7 @@ public class Matrix {
      * @param axis (0 or 1).
      * @return (Matrix object) vector with summed values of each column/row.
      */
-    protected Matrix sum(int axis) throws InvalidParameterException {
+    protected Matrix sum(int axis) throws InvalidMatrixAxis, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (axis == 0) {
             Matrix temp = new Matrix(1, this.columns);
             for (int i = 0; i < this.getColumns(); i++) {
@@ -549,7 +554,7 @@ public class Matrix {
             return temp;
 
         } else
-            throw new InvalidParameterException("Invalid axis provided.");
+            throw new InvalidMatrixAxis(axis);
     }
 
     /**
@@ -622,6 +627,7 @@ public class Matrix {
 
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++) {
+                assert obj instanceof Matrix;
                 if (this.matrix[i][j] != ((Matrix) obj).matrix[i][j])
                     return false;
             }
@@ -634,7 +640,7 @@ public class Matrix {
      * @param n_columns (number of columns in matrix)
      * @return (nxm Matrix filled with normal_distribution values)
      */
-    protected static Matrix random(int n_rows, int n_columns) {
+    protected static Matrix random(int n_rows, int n_columns) throws InvalidMatrixDimension {
         Matrix temp = new Matrix(Math.abs(n_rows), Math.abs(n_columns));
         for (int i = 0; i < temp.rows; i++) {
             for (int j = 0; j < temp.columns; j++)
@@ -653,7 +659,7 @@ public class Matrix {
      * @param max (maximal double value).
      * @return Matrix with clipped values.
      */
-    public static Matrix clip(Matrix B, double min, double max) {
+    public static Matrix clip(Matrix B, double min, double max) throws InvalidMatrixDimension {
         Matrix temp = new Matrix(B.rows, B.columns);
         for (int i = 0; i < B.rows; i++) {
             for (int j = 0; j < B.columns; j++) {
@@ -675,7 +681,7 @@ public class Matrix {
      * @param value (double number).
      * @return Matrix modified with positive numbers.
      */
-    protected static Matrix maximum(Matrix B, double value) {
+    protected static Matrix maximum(Matrix B, double value) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(B.rows, B.columns);
 
         for (int i = 0; i < B.rows; i++) {
@@ -694,9 +700,9 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Boolean Matrix of 1/0.
      */
-    public static Matrix bitwiseCompare(Matrix A, Matrix B) throws IndexOutOfBoundsException {
+    public static Matrix bitwiseCompare(Matrix A, Matrix B) throws InvalidMatrixDimension {
         if (A.rows != B.rows || A.columns != B.columns)
-            throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", A.rows, A.columns, B.rows, B.columns));
+            throw new InvalidMatrixDimension(A, B);
 
         Matrix temp = new Matrix(A.rows, A.columns);
         for (int i = 0; i < A.rows; i++) {
@@ -717,8 +723,11 @@ public class Matrix {
      * @param n_rows (number of rows).
      * @return Diagnal Matrix.
      */
-    public static Matrix eye(int n_rows) {
-        Matrix temp = new Matrix(Math.abs(n_rows), Math.abs(n_rows));
+    public static Matrix eye(int n_rows) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+        if (n_rows <= 0)
+            throw new InvalidMatrixDimension(n_rows, n_rows);
+
+        Matrix temp = new Matrix(n_rows, n_rows);
         for (int i = 0; i < temp.rows; i++) {
             for (int j = 0; j < temp.columns; j++) {
                 if (i == j)
@@ -734,14 +743,14 @@ public class Matrix {
      * @param V (Matrix object).
      * @return Matrix of OneHot Vectors.
      */
-    public static Matrix oneHotVector(Matrix V) throws IndexOutOfBoundsException {
+    public static Matrix oneHotVector(Matrix V) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(V.columns, V.columns); //(m, m) Matrix
 
         if (V.getRows() == 1)
             for (int i = 0; i < V.getColumns(); i++)
                 temp.setValue(i, (int) (V.getValue(0, i)), 1.0);
         else
-            throw new IndexOutOfBoundsException(String.format("Provided Matrix is not in Vector shape (%s,%s)", V.rows, V.columns));
+            throw new InvalidMatrixDimension(V, V);
 
         return temp;
     }
@@ -752,7 +761,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Diagonal Matrix with the given Vector values.
      */
-    public static Matrix diagflat(Matrix B) throws IndexOutOfBoundsException {
+    public static Matrix diagflat(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (B.rows == 1) {
             Matrix temp = new Matrix(B.columns, B.columns);
             for (int i = 0; i < temp.rows; i++) {
@@ -774,7 +783,7 @@ public class Matrix {
             }
             return temp;
         } else
-            throw new IndexOutOfBoundsException(String.format("Provided Matrix is not in Vector shape (%s,%s)", B.rows, B.columns));
+            throw new InvalidMatrixDimension(B.rows, B.columns);
     }
 
     /**
@@ -784,8 +793,11 @@ public class Matrix {
      * @param n_columns (number of columns)
      * @return Diagnal Matrix.
      */
-    public static Matrix eye(int n_rows, int n_columns) {
-        Matrix temp = new Matrix(Math.abs(n_rows), Math.abs(n_columns));
+    public static Matrix eye(int n_rows, int n_columns) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+        if (n_rows <= 0)
+            throw new InvalidMatrixDimension(n_rows, n_columns);
+
+        Matrix temp = new Matrix(n_rows, n_columns);
         for (int i = 0; i < temp.rows; i++) {
             for (int j = 0; j < temp.columns; j++) {
                 if (i == j)
@@ -801,7 +813,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return flatted Matrix.
      */
-    protected static Matrix flat(Matrix B) {
+    protected static Matrix flat(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(1, B.rows * B.columns);
         int index = 0;
         for (int i = 0; i < B.rows; i++) {
@@ -819,7 +831,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Zero Values Matrix.
      */
-    protected static Matrix zeros_like(Matrix B) {
+    protected static Matrix zeros_like(Matrix B) throws InvalidMatrixDimension {
         return new Matrix(B.rows, B.columns);
     }
 

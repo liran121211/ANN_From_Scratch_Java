@@ -3,7 +3,7 @@ public class Activation_SoftMax implements Activation {
     private Matrix d_inputs;
 
     @Override
-    public void forward(Matrix inputs) {
+    public void forward(Matrix inputs) throws InvalidMatrixDimension, InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixAxis {
         this.outputs = new Matrix(inputs.getRows(), inputs.getColumns());
         Matrix np_max = new Matrix(inputs.max(1));
         Matrix subtract = new Matrix(inputs.subtract(np_max));
@@ -14,7 +14,7 @@ public class Activation_SoftMax implements Activation {
     }
 
     @Override
-    public void backward(Matrix d_values) {
+    public void backward(Matrix d_values) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation {
         this.d_inputs = new Matrix(d_values.getRows(), d_values.getColumns()); // Create zeros array
 
         for (int i = 0; i < d_values.getRows(); i++) { // like enumerate(zip(this.output,d_values))

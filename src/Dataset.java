@@ -4,7 +4,7 @@ public class Dataset {
     private final Matrix vertical_data;
     private final Matrix vertical_classes;
 
-    protected Dataset() {
+    protected Dataset() throws InvalidMatrixDimension {
         this.spiral_data = new Matrix(300, 2, new double[][]{{0.00000000e+00, 0.00000000e+00},
                 {2.99555692e-03, 9.64660756e-03},
                 {1.28809698e-02, 1.55628482e-02},

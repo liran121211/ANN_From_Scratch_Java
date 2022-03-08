@@ -2,7 +2,7 @@ class Loss_CategoricalCrossEntropy implements Loss {
     private Matrix d_inputs;
 
     @Override
-    public void backward(Matrix d_values, Matrix y_true) {
+    public void backward(Matrix d_values, Matrix y_true) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixOperation {
         int samples = d_values.getRows();
         int labels = d_values.getColumns(); //Might not be useful??
 
@@ -19,7 +19,7 @@ class Loss_CategoricalCrossEntropy implements Loss {
     }
 
     @Override
-    public Matrix forward(Matrix y_pred, Matrix y_true) throws IndexOutOfBoundsException {
+    public Matrix forward(Matrix y_pred, Matrix y_true) throws IndexOutOfBoundsException, InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation {
         int samples = y_pred.getRows();
         Matrix y_pred_clipped = Matrix.clip(y_pred, 1e-7, 1 - 1e-7);
         Matrix correct_confidences = new Matrix(samples, 1);

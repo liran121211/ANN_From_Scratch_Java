@@ -12,12 +12,12 @@ public class LayerDense {
     private Matrix d_biases;
     private Matrix d_inputs;
 
-    protected LayerDense(int n_inputs, int n_neurons) {
+    protected LayerDense(int n_inputs, int n_neurons) throws InvalidMatrixDimension {
         this.weights = Matrix.random(n_inputs, n_neurons).multiply(0.01);
         this.biases = new Matrix(1, n_neurons);
     }
 
-    protected void backward(Matrix d_values) {
+    protected void backward(Matrix d_values) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis, InvalidMatrixOperation {
         this.d_weights = this.inputs.transpose().dot(d_values); //Gradients on parameters
         this.d_biases = d_values.sum(0); //Gradients on parameters
         this.d_inputs = d_values.dot(this.weights.transpose()); //Gradient on values
@@ -29,13 +29,13 @@ public class LayerDense {
      *
      * @param inputs (Matrix object).
      */
-    protected void forward(Matrix inputs) {
+    protected void forward(Matrix inputs) throws MatrixIndexesOutOfBounds, InvalidMatrixOperation, InvalidMatrixDimension {
         this.inputs = new Matrix(inputs);
         this.output = addBias(inputs.dot(this.weights), this.biases);
     }
 
 
-    protected static Matrix addBias(Matrix B, Matrix V) throws IndexOutOfBoundsException {
+    protected static Matrix addBias(Matrix B, Matrix V) throws IndexOutOfBoundsException, InvalidMatrixOperation {
         if (B.getColumns() != V.getColumns())
             throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", B.getRows(), B.getColumns(), V.getRows(), V.getColumns()));
         else
@@ -44,7 +44,7 @@ public class LayerDense {
 
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws MatrixExceptionHandler {
 
         //Create dataset
         Matrix X = new Dataset().getSpiral_data();
@@ -106,6 +106,8 @@ public class LayerDense {
         System.out.println(dense1.d_biases);
         System.out.println(dense2.d_weights);
         System.out.println(dense2.d_biases);
+
+        new Matrix(2,5);
     }
 
 }

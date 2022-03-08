@@ -4,7 +4,7 @@ public class Activation_ReLU implements Activation {
     private Matrix d_inputs;
 
     @Override
-    public void forward(Matrix inputs) {
+    public void forward(Matrix inputs) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension {
         this.inputs = new Matrix(inputs);
         this.outputs = new Matrix(inputs.getRows(), inputs.getColumns());
         for (int i = 0; i < inputs.getRows(); i++) {
@@ -14,7 +14,7 @@ public class Activation_ReLU implements Activation {
     }
 
     @Override
-    public void backward(Matrix d_values) {
+    public void backward(Matrix d_values) throws MatrixIndexesOutOfBounds {
         this.d_inputs = new Matrix(d_values);
         for (int i = 0; i < d_inputs.getRows(); i++) {
             for (int j = 0; j < d_inputs.getColumns(); j++) {
