@@ -3,6 +3,17 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
     private Loss loss;
     private Matrix output;
 
+    public Matrix get_outputs() {
+        return output;
+    }
+
+    public Matrix get_d_inputs() {
+        return d_inputs;
+    }
+
+    private Matrix d_inputs;
+
+
     protected Activation_Softmax_Loss_CategoricalCrossEntropy() {
         this.activation = new Activation_SoftMax();
         this.loss = new Loss_CategoricalCrossEntropy();
@@ -17,12 +28,15 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
         return this.loss.calculate(forward_matrix);
     }
 
-    public void backward(Matrix d_values) {
-        int samples = d_values.getRows();
-    }
+    public void backward(Matrix d_values, Matrix y_true) {
+        if (y_true.shape() == 2)
+            y_true = y_true.argmax(1);
 
-    @Override
-    public Matrix output() {
-        return null;
+        this.d_inputs = new Matrix(d_values);
+
+        for (int i = 0; i < d_inputs.getRows(); i++) {
+            d_inputs.setValue(i, (int) y_true.getValue(0, i), d_inputs.getValue(i, (int) y_true.getValue(0, i)) - 1);
+        }
+        this.d_inputs.divide(d_values.getRows());
     }
 }

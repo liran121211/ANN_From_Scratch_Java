@@ -1,14 +1,6 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class Activation_SoftMax implements Activation {
     private Matrix outputs;
     private Matrix d_inputs;
-
-    @Override
-    public Matrix output() {
-        return outputs;
-    }
 
     @Override
     public void forward(Matrix inputs) {
@@ -31,11 +23,20 @@ public class Activation_SoftMax implements Activation {
 
             // Calculate sample-wise gradient
             // and add it to the array of sample gradients
-            Matrix vector = jacobian_matrix.dot(d_values.getRow(i));
+            Matrix vector = jacobian_matrix.dot(d_values.getRow(i).transpose());
             for (int j = 0; j < d_inputs.getRows(); j++) {
                 d_inputs.setValue(j, i, vector.getValue(j, 0));
             }
         }
 
+    }
+
+    public Matrix d_inputs() {
+        return d_inputs;
+    }
+
+    @Override
+    public Matrix output() {
+        return outputs;
     }
 }

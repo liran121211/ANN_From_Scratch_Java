@@ -1,7 +1,8 @@
 class Loss_CategoricalCrossEntropy implements Loss {
     private Matrix d_inputs;
 
-    protected void backward(Matrix d_values, Matrix y_true) {
+    @Override
+    public void backward(Matrix d_values, Matrix y_true) {
         int samples = d_values.getRows();
         int labels = d_values.getColumns(); //Might not be useful??
 
@@ -17,6 +18,7 @@ class Loss_CategoricalCrossEntropy implements Loss {
 
     }
 
+    @Override
     public Matrix forward(Matrix y_pred, Matrix y_true) throws IndexOutOfBoundsException {
         int samples = y_pred.getRows();
         Matrix y_pred_clipped = Matrix.clip(y_pred, 1e-7, 1 - 1e-7);
@@ -42,6 +44,11 @@ class Loss_CategoricalCrossEntropy implements Loss {
     @Override
     public double calculate(Matrix output) {
         return output.mean();
+    }
+
+    @Override
+    public Matrix d_inputs() {
+        return d_inputs;
     }
 }
 

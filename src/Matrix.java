@@ -1,7 +1,5 @@
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Random;
 
 public class Matrix {
@@ -213,7 +211,7 @@ public class Matrix {
     }
 
     /**
-     * add (num) value to each cell of the Matrix.
+     * Add (num) value to each cell of the Matrix.
      *
      * @param num (double value)
      * @return Matrix with updated values.
@@ -227,7 +225,7 @@ public class Matrix {
     }
 
     /**
-     * subtract (num) value to each cell of the Matrix.
+     * Subtract (num) value to each cell of the Matrix.
      *
      * @param num (double value)
      * @return Matrix with updated values.
@@ -265,7 +263,7 @@ public class Matrix {
     }
 
     /**
-     * divide (num) value to each cell of the Matrix.
+     * Divide (num) value to each cell of the Matrix.
      *
      * @param num (double value)
      * @return Matrix with updated values.
@@ -310,6 +308,13 @@ public class Matrix {
         return this;
     }
 
+    /**
+     * Transofrm Matrix into other shape.
+     *
+     * @param n_rows    (number of rows).
+     * @param n_columns (number of columns).
+     * @return Reshaped Matrix.
+     */
     protected Matrix reshape(int n_rows, int n_columns) {
         Matrix flatten_matrix = Matrix.flat(this);
         int index = 0;
@@ -350,7 +355,7 @@ public class Matrix {
     }
 
     /**
-     * raise by E each cell of the Matrix.
+     * Raise all values in Matrix by (E) exponent.
      *
      * @return Modified Matrix after subtraction.
      */
@@ -376,6 +381,12 @@ public class Matrix {
         return temp;
     }
 
+    /**
+     * Get specific row of the Matrix.
+     *
+     * @param row (row number).
+     * @return Vector of specific row.
+     */
     protected Matrix getRow(int row) {
         Matrix temp = new Matrix(1, this.columns);
         for (int i = 0; i < this.columns; i++) {
@@ -384,12 +395,32 @@ public class Matrix {
         return temp;
     }
 
+    /**
+     * Get specific column of the Matrix.
+     *
+     * @param column (column number).
+     * @return Vector of specific column.
+     */
     protected Matrix getColumn(int column) {
         Matrix temp = new Matrix(this.rows, 1);
         for (int i = 0; i < this.rows; i++) {
             temp.setValue(i, 0, this.getValue(i, column));
         }
         return temp;
+    }
+
+    /**
+     * Get shape of Matrix
+     *
+     * @return 1 if Matrix is Vector else 2.
+     */
+    protected int shape() {
+        if (this.rows == 1 && this.columns >= 1)
+            return 1;
+        else if (this.columns == 1 && this.rows >= 1)
+            return 1;
+        else
+            return 2;
     }
 
     /**
@@ -612,6 +643,16 @@ public class Matrix {
         return temp;
     }
 
+    /**
+     * Given an interval, values outside the interval are clipped to the interval edges.
+     * For example, if an interval of [0, 1] is specified,
+     * values smaller than 0 become 0, and values larger than 1 become 1.
+     *
+     * @param B   (Matrix object).
+     * @param min (minimal double value).
+     * @param max (maximal double value).
+     * @return Matrix with clipped values.
+     */
     public static Matrix clip(Matrix B, double min, double max) {
         Matrix temp = new Matrix(B.rows, B.columns);
         for (int i = 0; i < B.rows; i++) {
@@ -627,6 +668,13 @@ public class Matrix {
         return temp;
     }
 
+    /**
+     * Change every value of Matrix to given (value) if it is less 0.
+     *
+     * @param B     (Matrix object).
+     * @param value (double number).
+     * @return Matrix modified with positive numbers.
+     */
     protected static Matrix maximum(Matrix B, double value) {
         Matrix temp = new Matrix(B.rows, B.columns);
 
@@ -638,6 +686,14 @@ public class Matrix {
         return temp;
     }
 
+    /**
+     * Compare each values of Matrix (A) to Matrix (B)
+     * Set value 1 if equal else 0.
+     *
+     * @param A (Matrix object).
+     * @param B (Matrix object).
+     * @return Boolean Matrix of 1/0.
+     */
     public static Matrix bitwiseCompare(Matrix A, Matrix B) throws IndexOutOfBoundsException {
         if (A.rows != B.rows || A.columns != B.columns)
             throw new IndexOutOfBoundsException(String.format("Matrices has different dimensions (%s,%s) By (%s,%s)", A.rows, A.columns, B.rows, B.columns));
@@ -672,6 +728,12 @@ public class Matrix {
         return temp;
     }
 
+    /**
+     * Create Matrix that contains OneHot Vectos each row by given Vector (V).
+     *
+     * @param V (Matrix object).
+     * @return Matrix of OneHot Vectors.
+     */
     public static Matrix oneHotVector(Matrix V) throws IndexOutOfBoundsException {
         Matrix temp = new Matrix(V.columns, V.columns); //(m, m) Matrix
 
@@ -688,7 +750,7 @@ public class Matrix {
      * Create a 2D Matrix with the array_like input as a diagonal to the new output array.
      *
      * @param B (Matrix object).
-     * @return Diagnal Matrix with the given Vector values.
+     * @return Diagonal Matrix with the given Vector values.
      */
     public static Matrix diagflat(Matrix B) throws IndexOutOfBoundsException {
         if (B.rows == 1) {
@@ -761,6 +823,13 @@ public class Matrix {
         return new Matrix(B.rows, B.columns);
     }
 
+    /**
+     * Multiply 2 Vectors.
+     *
+     * @param V1 (Matrix object).
+     * @param V2 (Matrix object).
+     * @return Matrix of (V1xV2) size.
+     */
     private static double vectorsMultiplication(Matrix V1, Matrix V2) {
         double sum_values = 0.0;
         if (V1.columns == 1 && V2.columns == 1 && V1.rows == V2.rows) {
@@ -776,6 +845,13 @@ public class Matrix {
         return sum_values;
     }
 
+    /**
+     * Sum all values in specific row of the Matrix.
+     *
+     * @param V   (Matrix object).
+     * @param row (row number).
+     * @return (double) values of sum.
+     */
     protected static double sumRow(Matrix V, int row) {
         double sum_values = 0.0;
         for (int i = 0; i < V.columns; i++)
@@ -783,6 +859,13 @@ public class Matrix {
         return sum_values;
     }
 
+    /**
+     * Sum all values in specific column of the Matrix.
+     *
+     * @param V      (Matrix object).
+     * @param column (row number).
+     * @return (double) values of sum.
+     */
     protected static double sumColumn(Matrix V, int column) {
         double sum_values = 0.0;
         for (int i = 0; i < V.rows; i++)

@@ -4,19 +4,6 @@ public class Activation_ReLU implements Activation {
     private Matrix d_inputs;
 
     @Override
-    public Matrix output() {
-        return outputs;
-    }
-
-    public Matrix input() {
-        return inputs;
-    }
-
-    public Matrix d_input() {
-        return d_inputs;
-    }
-
-    @Override
     public void forward(Matrix inputs) {
         this.inputs = new Matrix(inputs);
         this.outputs = new Matrix(inputs.getRows(), inputs.getColumns());
@@ -37,5 +24,15 @@ public class Activation_ReLU implements Activation {
                     this.d_inputs.setValue(i, j, this.inputs.getValue(i, j));
             }
         }
+    }
+
+    @Override
+    public Matrix output() {
+        return outputs;
+    }
+
+    @Override
+    public Matrix d_inputs() {
+        return d_inputs;
     }
 }
