@@ -34,9 +34,9 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
 
         this.d_inputs = new Matrix(d_values);
 
-        for (int i = 0; i < d_inputs.getRows(); i++) {
+        for (int i = 0; i < d_inputs.getRows(); i++)
             d_inputs.setValue(i, (int) y_true.getValue(0, i), d_inputs.getValue(i, (int) y_true.getValue(0, i)) - 1);
-        }
+
         this.d_inputs.divide(d_values.getRows());
     }
 }

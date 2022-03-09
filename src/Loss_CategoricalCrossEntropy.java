@@ -11,7 +11,7 @@ class Loss_CategoricalCrossEntropy implements Loss {
             y_true = Matrix.oneHotVector(y_true);
 
         // Calculate gradient
-        this.d_inputs = y_true.divide(d_values).multiply(-1);
+        this.d_inputs = y_true.multiply(-1).divide(d_values);
 
         // Normalize gradient
         this.d_inputs = this.d_inputs.divide(samples);
@@ -24,7 +24,7 @@ class Loss_CategoricalCrossEntropy implements Loss {
         Matrix y_pred_clipped = Matrix.clip(y_pred, 1e-7, 1 - 1e-7);
         Matrix correct_confidences = new Matrix(samples, 1);
 
-        if (y_true.getRows() == 1) { //1D array label data
+        if (y_true.shape() == 1) { //1D array label data
             if (y_pred.getRows() == y_true.getColumns()) { // Check if Prediction size == Labels size
                 for (int i = 0; i < samples; i++)
                     correct_confidences.setValue(i, 0, y_pred_clipped.getValue(i, (int) y_true.getValue(0, i)));

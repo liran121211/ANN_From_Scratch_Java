@@ -28,6 +28,10 @@ class MatrixIndexesOutOfBounds extends MatrixExceptionHandler {
     public MatrixIndexesOutOfBounds(int row, int column) {
         super(String.format("the provided dimensions (%s, %s) are out of bounds", row, column));
     }
+
+    public MatrixIndexesOutOfBounds(Matrix A, Matrix B) {
+        super(String.format("matrix (%s,%s) or vector (%s,%s) size is out of bounds ", A.getRows(), A.getColumns(), B.getRows(), B.getColumns()));
+    }
 }
 
 class InvalidMatrixOperation extends MatrixExceptionHandler {

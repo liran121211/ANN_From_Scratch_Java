@@ -9,8 +9,7 @@ public class Activation_SoftMax implements Activation {
         Matrix subtract = new Matrix(inputs.subtract(np_max));
         Matrix exp_values = new Matrix(subtract.exp());
 
-        Matrix np_sum = new Matrix(exp_values.sum(1));
-        this.outputs = new Matrix(exp_values.divide(np_sum));
+        this.outputs = exp_values.divide(exp_values.sum(1));
     }
 
     @Override
