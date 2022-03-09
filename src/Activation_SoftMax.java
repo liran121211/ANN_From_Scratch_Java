@@ -1,20 +1,25 @@
 public class Activation_SoftMax implements Activation {
     private Matrix outputs;
+    private Matrix inputs;
     private Matrix d_inputs;
 
     @Override
     public void forward(Matrix inputs) throws InvalidMatrixDimension, InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixAxis {
+        this.inputs = inputs; // Remember input values
+
+        //Get unnormalized probabilities
         this.outputs = new Matrix(inputs.getRows(), inputs.getColumns());
         Matrix np_max = new Matrix(inputs.max(1));
         Matrix subtract = new Matrix(inputs.subtract(np_max));
         Matrix exp_values = new Matrix(subtract.exp());
 
+        //Normalize them for each sample
         this.outputs = exp_values.divide(exp_values.sum(1));
     }
 
     @Override
     public void backward(Matrix d_values) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation {
-        this.d_inputs = new Matrix(d_values.getRows(), d_values.getColumns()); // Create zeros array
+        this.d_inputs = new Matrix(d_values.getRows(), d_values.getColumns()); // Create zeros array (uninitialized)
 
         for (int i = 0; i < d_values.getRows(); i++) { // like enumerate(zip(this.output,d_values))
             Matrix single_output = this.outputs.getRow(i).reshape(-1, 1); // Flatten output array
@@ -37,5 +42,9 @@ public class Activation_SoftMax implements Activation {
     @Override
     public Matrix output() {
         return outputs;
+    }
+
+    public Matrix inputs() {
+        return inputs;
     }
 }

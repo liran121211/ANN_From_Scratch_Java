@@ -1,4 +1,7 @@
 public class Activation_Softmax_Loss_CategoricalCrossEntropy {
+    //Softmax classifier - combined Softmax activation
+    //and cross-entropy loss for faster backward step
+
     private Activation activation;
     private Loss loss;
     private Matrix output;
@@ -13,21 +16,22 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
 
     private Matrix d_inputs;
 
-
+    //Creates activation and loss function objects
     protected Activation_Softmax_Loss_CategoricalCrossEntropy() {
         this.activation = new Activation_SoftMax();
         this.loss = new Loss_CategoricalCrossEntropy();
     }
 
-
+    //Forward pass
     public double forward(Matrix inputs, Matrix y_true) throws InvalidMatrixOperation, InvalidMatrixAxis, MatrixIndexesOutOfBounds, InvalidMatrixDimension {
-        this.activation.forward(inputs);
-        this.output = this.activation.output();
+        this.activation.forward(inputs); //Output layer's activation function
+        this.output = this.activation.output(); //Set the output
 
         Matrix forward_matrix = this.loss.forward(this.output, y_true);
-        return this.loss.calculate(forward_matrix);
+        return this.loss.calculate(forward_matrix); //Calculate and return loss value
     }
 
+    //Backward pass
     public void backward(Matrix d_values, Matrix y_true) throws InvalidMatrixAxis, MatrixIndexesOutOfBounds, InvalidMatrixDimension {
         if (y_true.shape() == 2)
             y_true = y_true.argmax(1);

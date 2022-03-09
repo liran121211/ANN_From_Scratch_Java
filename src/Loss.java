@@ -1,9 +1,12 @@
 public interface Loss {
-    public Matrix forward(Matrix output, Matrix y_true) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation;
+    //Calculates the data and regularization losses
+    //Given model output and ground truth values
 
-    public void backward(Matrix output, Matrix y_true) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixOperation;
+    Matrix forward(Matrix output, Matrix y_true) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation;
 
-    public Matrix d_inputs();
+    void backward(Matrix output, Matrix y_true) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixOperation;
 
-    public double calculate(Matrix output);
+    Matrix d_inputs();
+
+    double calculate(Matrix output);
 }

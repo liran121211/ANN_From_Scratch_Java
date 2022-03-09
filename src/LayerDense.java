@@ -1,25 +1,31 @@
-import com.github.sh0nk.matplotlib4j.PythonExecutionException;
-
-import java.io.IOException;
-import java.util.Arrays;
-
 public class LayerDense {
     private Matrix weights;
     private Matrix biases;
+
     private Matrix output;
     private Matrix inputs;
+
     private Matrix d_weights;
     private Matrix d_biases;
     private Matrix d_inputs;
 
+    private Matrix weight_momentums;
+    private Matrix bias_momentums;
+
+    // Layer initialization
     protected LayerDense(int n_inputs, int n_neurons) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         this.weights = Matrix.random(n_inputs, n_neurons).multiply(0.01);
         this.biases = new Matrix(1, n_neurons);
 
-//        this.weights = new Dataset().getTest_data(n_inputs,n_neurons);
-//        this.biases = new Dataset().getTest_classes(n_neurons);
+        //        this.weights = new Dataset().getTest_data(n_inputs,n_neurons);
+        //        this.biases = new Dataset().getTest_classes(n_neurons);
     }
 
+    /**
+     * Backward Pass.
+     *
+     * @param d_values (Matrix object).
+     */
     protected void backward(Matrix d_values) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis, InvalidMatrixOperation {
         this.d_weights = this.inputs.transpose().dot(d_values); //Gradients on parameters
         this.d_biases = d_values.sum(0); //Gradients on parameters
@@ -27,25 +33,14 @@ public class LayerDense {
     }
 
     /**
-     * Calculate output values from inputs, weights and biases
+     * Forward Pass.
      *
      * @param inputs (Matrix object).
      */
     protected void forward(Matrix inputs) throws MatrixIndexesOutOfBounds, InvalidMatrixOperation, InvalidMatrixDimension {
-        this.inputs = inputs;
-        this.output = addBias(inputs.dot(this.weights), this.biases);
+        this.inputs = inputs; //Remember input values
+        this.output = addBias(inputs.dot(this.weights), this.biases); //Calculate output values from inputs, weights and biases
     }
-
-
-    protected static Matrix addBias(Matrix B, Matrix V) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds {
-        if (B.getColumns() != V.getColumns())
-            throw new MatrixIndexesOutOfBounds(B, V);
-        else
-            B.add(V);
-        return B;
-
-    }
-
 
     public Matrix getWeights() {
         return weights;
@@ -75,12 +70,19 @@ public class LayerDense {
         return d_inputs;
     }
 
+    public Matrix get_weight_momentums() {
+        return weight_momentums;
+    }
 
-    public void setWeights(Matrix weights) throws MatrixIndexesOutOfBounds {
+    public Matrix get_bias_momentums() {
+        return bias_momentums;
+    }
+
+    public void setWeights(Matrix weights) {
         this.weights = weights;
     }
 
-    public void setBiases(Matrix biases) throws MatrixIndexesOutOfBounds {
+    public void setBiases(Matrix biases) {
         this.biases = biases;
     }
 
@@ -90,6 +92,23 @@ public class LayerDense {
 
     public void set_d_biases(Matrix d_biases) {
         this.d_biases = d_biases;
+    }
+
+    public void set_weight_momentums(Matrix weight_momentum) {
+        this.weight_momentums = weight_momentum;
+    }
+
+    public void set_bias_momentums(Matrix bias_momentum) {
+        this.bias_momentums = bias_momentum;
+    }
+
+    protected static Matrix addBias(Matrix B, Matrix V) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds {
+        if (B.getColumns() != V.getColumns())
+            throw new MatrixIndexesOutOfBounds(B, V);
+        else
+            B.add(V);
+        return B;
+
     }
 
     public static void main(String[] args) throws MatrixExceptionHandler {
@@ -111,9 +130,9 @@ public class LayerDense {
         // Create Softmax classifier's combined loss and activation
         Activation_Softmax_Loss_CategoricalCrossEntropy loss_activation = new Activation_Softmax_Loss_CategoricalCrossEntropy();
 
-        Optimizer_SGD optimizer = new Optimizer_SGD();
+        Optimizer_SGD optimizer = new Optimizer_SGD(1e-3,0.9);
 
-        for (int epoch = 0; epoch < 100001; epoch++) {
+        for (int epoch = 0; epoch < 10001; epoch++) {
 
             //Perform a forward pass of our training data through this layer
             dense1.forward(X);
@@ -141,7 +160,7 @@ public class LayerDense {
             double accuracy = Matrix.bitwiseCompare(predictions.transpose(), y).mean();
 
             if (epoch % 100 == 0) {
-                System.out.println("epoch: " + epoch + " acc: " + accuracy + " loss: " + loss);
+                System.out.println("epoch: " + epoch + " acc: " + accuracy + " loss: " + loss + " lr: " + optimizer.get_current_learning_rate());
             }
 
             //Backward pass
@@ -150,8 +169,10 @@ public class LayerDense {
             activation1.backward(dense2.d_inputs); //<-----this has a problem right now!
             dense1.backward(activation1.d_inputs());
 
+            optimizer.pre_update_params();
             optimizer.update_params(dense1);
             optimizer.update_params(dense2);
+            optimizer.post_update_params();
 
 
         }
