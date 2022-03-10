@@ -12,13 +12,16 @@ public class LayerDense {
     private Matrix weight_momentums;
     private Matrix bias_momentums;
 
+    private Matrix weight_cache;
+    private Matrix bias_cache;
+
     // Layer initialization
     protected LayerDense(int n_inputs, int n_neurons) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         this.weights = Matrix.random(n_inputs, n_neurons).multiply(0.01);
         this.biases = new Matrix(1, n_neurons);
 
-        //        this.weights = new Dataset().getTest_data(n_inputs,n_neurons);
-        //        this.biases = new Dataset().getTest_classes(n_neurons);
+//                this.weights = new Dataset().getTest_data(n_inputs,n_neurons);
+//                this.biases = new Dataset().getTest_classes(n_neurons);
     }
 
     /**
@@ -78,6 +81,14 @@ public class LayerDense {
         return bias_momentums;
     }
 
+    public Matrix get_weight_cache() {
+        return weight_cache;
+    }
+
+    public Matrix get_bias_cache() {
+        return bias_cache;
+    }
+
     public void setWeights(Matrix weights) {
         this.weights = weights;
     }
@@ -100,6 +111,14 @@ public class LayerDense {
 
     public void set_bias_momentums(Matrix bias_momentum) {
         this.bias_momentums = bias_momentum;
+    }
+
+    public void set_weight_cache(Matrix weight_cache) {
+        this.weight_cache = weight_cache;
+    }
+
+    public void set_bias_cache(Matrix bias_cache) {
+        this.bias_cache = bias_cache;
     }
 
     protected static Matrix addBias(Matrix B, Matrix V) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds {
@@ -130,7 +149,11 @@ public class LayerDense {
         // Create Softmax classifier's combined loss and activation
         Activation_Softmax_Loss_CategoricalCrossEntropy loss_activation = new Activation_Softmax_Loss_CategoricalCrossEntropy();
 
-        Optimizer_SGD optimizer = new Optimizer_SGD(1e-3,0.9);
+//        Optimization optimizer = new Optimizer_SGD(1.0,1e-3,0.90);
+//        Optimization optimizer = new Optimizer_Adagrad(1e-5);
+//        Optimization optimizer = new Optimizer_RMSprop(0.02 ,1e-4 ,0.999);
+//        Optimization optimizer = new Optimizer_RMSprop(1e-4 );
+        Optimization optimizer = new Optimizer_Adam(0.02,1e-5);
 
         for (int epoch = 0; epoch < 10001; epoch++) {
 
@@ -166,7 +189,7 @@ public class LayerDense {
             //Backward pass
             loss_activation.backward(loss_activation.get_outputs(), y);
             dense2.backward(loss_activation.get_d_inputs());
-            activation1.backward(dense2.d_inputs); //<-----this has a problem right now!
+            activation1.backward(dense2.d_inputs);
             dense1.backward(activation1.d_inputs());
 
             optimizer.pre_update_params();

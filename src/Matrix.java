@@ -527,6 +527,32 @@ public class Matrix {
     }
 
     /**
+     * square root (num) value to each cell of the Matrix.
+     *
+     * @return Matrix with squared root values.
+     */
+    protected Matrix sqrt() {
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++)
+                this.matrix[i][j] = Math.sqrt(this.matrix[i][j]);
+        }
+        return this;
+    }
+
+    /**
+     * pow value by (num) value to each cell of the Matrix.
+     * @param num (pow number).
+     * @return Matrix with pow values.
+     */
+    protected Matrix pow(double num) {
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++)
+                this.matrix[i][j] = Math.pow(this.matrix[i][j], num);
+        }
+        return this;
+    }
+
+    /**
      * Return summed values in each column/row of matrix.
      *
      * @param axis (0 or 1).
@@ -884,6 +910,5 @@ public class Matrix {
             sum_values += V.matrix[i][column];
         return sum_values;
     }
-
 }
 
