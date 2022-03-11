@@ -1,3 +1,9 @@
+package ann.classifier;
+
+import ann.classifier.InvalidMatrixDimension;
+import ann.classifier.Matrix;
+import ann.classifier.MatrixIndexesOutOfBounds;
+
 public class Dataset {
     private final Matrix spiral_data;
     private final Matrix spiral_classes;
@@ -7,7 +13,7 @@ public class Dataset {
     private Matrix test_data;
     private Matrix test_classes;
 
-    protected Dataset() throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+    public Dataset() throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         this.spiral_data = new Matrix(300, 2, new double[][]{{0.00000000e+00, 0.00000000e+00},
                 {2.99555692e-03, 9.64660756e-03},
                 {1.28809698e-02, 1.55628482e-02},

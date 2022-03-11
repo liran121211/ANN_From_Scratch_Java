@@ -1,3 +1,5 @@
+package ann.classifier;
+
 public class Activation_ReLU implements Activation {
     private Matrix outputs;
     private Matrix inputs;
@@ -40,5 +42,16 @@ public class Activation_ReLU implements Activation {
     @Override
     public Matrix d_inputs() {
         return d_inputs;
+    }
+
+    @Override
+    public double forward(Matrix inputs, Matrix y_true)  {
+        //NOT IN USE
+        return 0.0;
+    }
+
+    @Override
+    public void backward(Matrix d_values, Matrix y_true)  {
+        //NOT IN USE
     }
 }

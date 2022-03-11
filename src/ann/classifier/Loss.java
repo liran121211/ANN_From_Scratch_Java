@@ -1,3 +1,5 @@
+package ann.classifier;
+
 public interface Loss {
     //Calculates the data and regularization losses
     //Given model output and ground truth values

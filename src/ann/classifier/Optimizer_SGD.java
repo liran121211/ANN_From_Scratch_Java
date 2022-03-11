@@ -1,3 +1,5 @@
+package ann.classifier;
+
 public class Optimizer_SGD implements Optimization {
     private double learning_rate;
     private double current_learning_rate;
@@ -96,5 +98,10 @@ public class Optimizer_SGD implements Optimization {
     @Override
     public double get_current_learning_rate() {
         return current_learning_rate;
+    }
+
+    @Override
+    public String get_learning_rate() {
+        return String.valueOf(this.learning_rate);
     }
 }

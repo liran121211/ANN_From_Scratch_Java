@@ -1,3 +1,5 @@
+package ann.classifier;
+
 public class Optimizer_Adam implements Optimization {
     //Adam - Adaptive Momentum
     private double learning_rate;
@@ -125,6 +127,11 @@ public class Optimizer_Adam implements Optimization {
     @Override
     public double get_current_learning_rate() {
         return this.current_learning_rate;
+    }
+
+    @Override
+    public String get_learning_rate() {
+        return String.valueOf(this.learning_rate);
     }
 }
 

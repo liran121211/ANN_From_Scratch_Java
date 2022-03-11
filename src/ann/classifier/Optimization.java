@@ -1,3 +1,5 @@
+package ann.classifier;
+
 public interface Optimization {
     void pre_update_params();
 
@@ -6,5 +8,7 @@ public interface Optimization {
     void post_update_params();
 
     double get_current_learning_rate();
+
+    String get_learning_rate();
 
 }

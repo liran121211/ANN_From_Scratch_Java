@@ -1,3 +1,5 @@
+package ann.classifier;
+
 public class Optimizer_Adagrad implements Optimization {
     //Adagrad - Adaptive Gradient
     private double learning_rate;
@@ -82,5 +84,10 @@ public class Optimizer_Adagrad implements Optimization {
     @Override
     public double get_current_learning_rate() {
         return this.current_learning_rate;
+    }
+
+    @Override
+    public String get_learning_rate() {
+        return String.valueOf(this.learning_rate);
     }
 }

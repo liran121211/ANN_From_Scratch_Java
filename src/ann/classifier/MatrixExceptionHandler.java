@@ -1,3 +1,5 @@
+package ann.classifier;
+
 public class MatrixExceptionHandler extends Exception {
 
     public MatrixExceptionHandler() {

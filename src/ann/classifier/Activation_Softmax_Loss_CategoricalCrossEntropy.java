@@ -1,4 +1,6 @@
-public class Activation_Softmax_Loss_CategoricalCrossEntropy {
+package ann.classifier;
+
+public class Activation_Softmax_Loss_CategoricalCrossEntropy implements Activation {
     //Softmax classifier - combined Softmax activation
     //and cross-entropy loss for faster backward step
 
@@ -6,13 +8,6 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
     private Loss loss;
     private Matrix output;
 
-    public Matrix get_outputs() {
-        return output;
-    }
-
-    public Matrix get_d_inputs() {
-        return d_inputs;
-    }
 
     private Matrix d_inputs;
 
@@ -42,5 +37,25 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy {
             d_inputs.setValue(i, (int) y_true.getValue(0, i), d_inputs.getValue(i, (int) y_true.getValue(0, i)) - 1);
 
         this.d_inputs.divide(d_values.getRows());
+    }
+
+    @Override
+    public Matrix output() {
+        return output;
+    }
+
+    @Override
+    public Matrix d_inputs() {
+        return d_inputs;
+    }
+
+    @Override
+    public void forward(Matrix inputs) {
+        //NOT IN USE
+    }
+
+    @Override
+    public void backward(Matrix d_values) {
+        //NOT IN USE
     }
 }
