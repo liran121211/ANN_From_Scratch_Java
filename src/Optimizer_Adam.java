@@ -65,15 +65,54 @@ public class Optimizer_Adam implements Optimization {
         //If layer does not contain cache arrays,
         //create them filled with zeros
         if (layer.get_weight_cache() == null) {
-            layer.set_weight_momentums(new Matrix(layer.getWeights().getRows(), layer.getWeights().getColumns()));
             layer.set_weight_cache(new Matrix(layer.getWeights().getRows(), layer.getWeights().getColumns()));
-
-            layer.set_bias_momentums(new Matrix(layer.getBiases().getRows(), layer.getBiases().getColumns()));
             layer.set_bias_cache(new Matrix(layer.getBiases().getRows(), layer.getBiases().getColumns()));
-
+            layer.set_weight_momentums(new Matrix(layer.getWeights().getRows(), layer.getWeights().getColumns()));
+            layer.set_bias_momentums(new Matrix(layer.getBiases().getRows(), layer.getBiases().getColumns()));
         }
 
-        //TODO NOT WORKING
+        // Update momentum with current gradients
+        Matrix get_d_weights_copy = new Matrix(layer.get_d_weights()); //Avoid modifying (d_weights)
+        Matrix get_d_biases_copy = new Matrix(layer.get_d_biases()); //Avoid modifying (d_biases)
+        layer.set_weight_momentums(layer.get_weight_momentums().multiply(this.beta_1).add(get_d_weights_copy.multiply(1-this.beta_1)));
+        layer.set_bias_momentums(layer.get_bias_momentums().multiply(this.beta_1).add(get_d_biases_copy.multiply(1-this.beta_1)));
+
+        // Get corrected momentum
+        // this.iteration is 0 at first pass
+        // and we need to start with 1 here
+        Matrix weight_momentums_corrected = new Matrix(layer.get_weight_momentums()).divide(( 1 - Math.pow(this.beta_1,(this.iterations + 1 ))));
+        Matrix bias_momentums_corrected = new Matrix(layer.get_bias_momentums()).divide(( 1 - Math.pow(this.beta_1,(this.iterations + 1 ))));
+
+        //Vanilla SGD parameter update + normalization
+        //with square rooted cache
+        Matrix weight_cache_copy =new Matrix( layer.get_d_weights()); //Avoid modifying (weight_cache)
+        Matrix step1_w = weight_cache_copy.pow(2).multiply( 1 - this.beta_2);
+        Matrix step2_w = layer.get_weight_cache().multiply(this.beta_2);
+        Matrix step3_w = step2_w.add(step1_w);
+        layer.set_weight_cache(step3_w);
+
+        Matrix bias_cache_copy =new Matrix(layer.get_d_biases());//Avoid modifying (bias_cache)
+        Matrix step1_b = bias_cache_copy.pow(2).multiply( 1 - this.beta_2);
+        Matrix step2_b = layer.get_bias_cache().multiply(this.beta_2);
+        Matrix step3_b = step2_b.add(step1_b);
+        layer.set_bias_cache(step3_b);
+
+        //Get corrected cache
+        Matrix weight_cache_corrected = new Matrix(layer.get_weight_cache()).divide(( 1 - Math.pow(this.beta_2,(this.iterations + 1 ))));
+        Matrix bias_cache_corrected = new Matrix(layer.get_bias_cache()).divide(( 1 - Math.pow(this.beta_2,(this.iterations + 1 ))));
+
+
+        //Vanilla SGD parameter update + normalization
+        //with square rooted cache
+        Matrix step1_w__ = weight_cache_corrected.sqrt().add(this.epsilon);
+        Matrix step2_w__ = weight_momentums_corrected.multiply(-this.current_learning_rate);
+        Matrix step3_w__ = step2_w__.divide(step1_w__);
+        layer.setWeights(layer.getWeights().add(step3_w__));
+
+        Matrix step1_b__ = bias_cache_corrected.sqrt().add(this.epsilon);
+        Matrix step2_b__ = bias_momentums_corrected.multiply(-this.current_learning_rate);
+        Matrix step3_b__ = step2_b__.divide(step1_b__);
+        layer.setBiases(layer.getBiases().add(step3_b__));
 
     }
 
