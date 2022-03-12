@@ -6,9 +6,11 @@ public interface Loss {
 
     Matrix forward(Matrix output, Matrix y_true) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation;
 
-    void backward(Matrix output, Matrix y_true) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixOperation;
+    void backward(Matrix output, Matrix y_true) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixOperation, InvalidMatrixAxis;
 
     Matrix d_inputs();
 
     double calculate(Matrix output);
+
+    double regularization_loss (LayerDense layer) throws MatrixIndexesOutOfBounds;
 }

@@ -58,4 +58,32 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy implements Activati
     public void backward(Matrix d_values) {
         //NOT IN USE
     }
+
+    protected static double regularization_loss(LayerDense layer) throws MatrixIndexesOutOfBounds { //Regularization loss calculation
+        double regularization_loss = 0.0; //0 by default
+
+        //L1 regularization - weights
+        //Calculate only when factor greater than 0
+        if (layer.get_weight_regularizer_l1() > 0) {
+            Matrix abs = new Matrix(layer.getWeights().abs());
+            regularization_loss += layer.get_weight_regularizer_l1() * abs.sum();
+        }
+
+        if (layer.get_weight_regularizer_l2() > 0) {
+            Matrix square = new Matrix(layer.getWeights().pow(2));
+            regularization_loss += layer.get_weight_regularizer_l2() * square.sum();
+        }
+
+        if (layer.get_bias_regularizer_l1() > 0) {
+            Matrix abs = new Matrix(layer.getBiases().abs());
+            regularization_loss += layer.get_bias_regularizer_l1() * abs.sum();
+        }
+
+        if (layer.get_bias_regularizer_l2() > 0) {
+            Matrix square = new Matrix(layer.getBiases().pow(2));
+            regularization_loss += layer.get_bias_regularizer_l2() * square.sum();
+        }
+
+        return regularization_loss;
+    }
 }

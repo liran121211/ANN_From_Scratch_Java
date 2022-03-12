@@ -52,7 +52,7 @@ public class NeuralNetwork {
     }
 
     public void fit(Matrix X_train, Matrix y_train) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis {
-        raiseInfo(String.format("initialized parameters - inputs: %s | hidden_layers: %s | outputs: %s | learning_rate: %s", n_inputs, n_hidden, n_outputs, optimizer.get_learning_rate()));
+        raiseInfo(String.format("Training Started - inputs: %s | hidden_layers: %s | outputs: %s | learning_rate: %s", n_inputs, n_hidden, n_outputs, optimizer.get_learning_rate()));
         this.loss_activation = new Activation_Softmax_Loss_CategoricalCrossEntropy();
 
         for (int epoch = 0; epoch < this.max_iterations; epoch++) {
@@ -74,7 +74,17 @@ public class NeuralNetwork {
 
             //Perform a forward pass through the activation/loss function
             //takes the output of second dense layer here and returns loss
-            this.loss = this.loss_activation.forward(this.output_layer.getOutput(), y_train);
+            double data_loss = this.loss_activation.forward(this.output_layer.getOutput(), y_train);
+
+            // Calculate regularization penalty
+            double regularization_loss = 0.0;
+            regularization_loss += Activation_Softmax_Loss_CategoricalCrossEntropy.regularization_loss(input_layer);
+            for (int i = 0; i < this.n_hidden; i++)
+                regularization_loss += Activation_Softmax_Loss_CategoricalCrossEntropy.regularization_loss(this.hidden_layers.get(i));
+            regularization_loss += Activation_Softmax_Loss_CategoricalCrossEntropy.regularization_loss(output_layer);
+
+            //Calculate overall loss
+            this.loss = data_loss + regularization_loss;
 
             //Calculate accuracy from output of activation2 and targets
             //calculate values along first axis
@@ -89,7 +99,8 @@ public class NeuralNetwork {
             //show logs
             if (isLogged)
                 if (epoch % 50 == 0)
-                    System.out.printf("Epochs: %d | Accuracy: %.5f | Loss: %.5f%n", epoch, accuracy, loss);
+                    System.out.printf("Epochs: %d | Accuracy: %.5f | Loss: %.5f | Data Loss: %.5f | Regularization Loss: %.5f%n", epoch, this.accuracy, this.loss, data_loss, regularization_loss);
+
 
             //Backward pass
             int pointer = this.activations.size() - 1; // last object (cell) in activations
@@ -114,8 +125,41 @@ public class NeuralNetwork {
         System.out.printf("Training was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, this.loss);
     }
 
-    public void predict(Matrix X_test, Matrix y_test){
-        //Todo
+    public void predict(Matrix X_test, Matrix y_test) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis {
+        raiseInfo(String.format("Testing Started - inputs: %s | hidden_layers: %s | outputs: %s | learning_rate: %s", n_inputs, n_hidden, n_outputs, optimizer.get_learning_rate()));
+        //Perform a forward pass of our testing data through this layer
+        this.input_layer.forward(X_test);
+
+
+        //Perform a forward pass through activation function
+        //takes the output of first dense layer here
+        this.activations.get(0).forward(this.input_layer.getOutput());
+
+        //Perform a forward pass through second Dense layer
+        //takes outputs of activation function of first layer as inputs
+        for (int i = 0; i < this.n_hidden; i++) {
+            this.hidden_layers.get(i).forward(this.activations.get(i).output());
+            this.activations.get(i + 1).forward(this.hidden_layers.get(i).getOutput());
+        }
+        this.output_layer.forward(this.activations.get(this.n_hidden).output());
+
+        //Perform a forward pass through the activation/loss function
+        //takes the output of second dense layer here and returns loss
+        double loss = this.loss_activation.forward(this.output_layer.getOutput(), y_test);
+
+        //Calculate accuracy from output of activation2 and targets
+        //calculate values along first axis
+        Matrix predictions = this.loss_activation.output().argmax(1);
+
+        if (y_test.shape() == 2)
+            y_test = new Matrix(y_test.argmax(1));
+
+        // calculate accuracy
+        this.accuracy = Matrix.bitwiseCompare(predictions.transpose(), y_test).mean();
+
+        System.out.printf("Testing was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, this.loss);
+
+
     }
 
     private void buildOptimizer(String name) {
@@ -150,6 +194,28 @@ public class NeuralNetwork {
             raiseFatalError("cannot initialize network with zero or epochs!");
             System.exit(-1);
         }
+    }
+
+    /**
+     * Set L1 regularization to penalty the network.
+     *
+     * @param weight_regularizer linear penalty (double).
+     * @param bias_regularizer   non-linear penalty (double).
+     */
+    public void set_l1_regularizer(double weight_regularizer, double bias_regularizer) {
+        this.input_layer.set_weight_regularizer_l1(weight_regularizer);
+        this.input_layer.set_bias_regularizer_l1(bias_regularizer);
+    }
+
+    /**
+     * Set L2 regularization to penalty the network.
+     *
+     * @param weight_regularizer linear penalty (double).
+     * @param bias_regularizer   non-linear penalty (double).
+     */
+    public void set_l2_regularizer(double weight_regularizer, double bias_regularizer) {
+        this.input_layer.set_weight_regularizer_l2(weight_regularizer);
+        this.input_layer.set_bias_regularizer_l2(bias_regularizer);
     }
 
     public void setLogs(boolean status) {

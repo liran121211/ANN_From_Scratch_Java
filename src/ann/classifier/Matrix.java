@@ -1,4 +1,5 @@
 package ann.classifier;
+
 import java.util.Random;
 
 public class Matrix {
@@ -7,10 +8,10 @@ public class Matrix {
     private final double[][] matrix;
 
     /**
-     * Default ann.classifier.Matrix Constructor.
+     * Default Matrix Constructor.
      *
-     * @param n_rows    (ann.classifier.Matrix number of rows).
-     * @param n_columns (ann.classifier.Matrix number of columns).
+     * @param n_rows    (Matrix number of rows).
+     * @param n_columns (Matrix number of columns).
      */
     protected Matrix(int n_rows, int n_columns) throws InvalidMatrixDimension {
         if (n_rows <= 0 || n_columns <= 0)
@@ -27,10 +28,10 @@ public class Matrix {
     }
 
     /**
-     * ann.classifier.Matrix Constructor.
+     * Matrix Constructor.
      *
-     * @param n_rows    (ann.classifier.Matrix number of rows).
-     * @param n_columns (ann.classifier.Matrix number of columns).
+     * @param n_rows    (Matrix number of rows).
+     * @param n_columns (Matrix number of columns).
      * @param B         (2D double array)
      */
     protected Matrix(int n_rows, int n_columns, double[][] B) throws InvalidMatrixDimension {
@@ -51,7 +52,7 @@ public class Matrix {
     /**
      * Copy Constructor.
      *
-     * @param B (ann.classifier.Matrix object.)
+     * @param B (Matrix object.)
      */
     protected Matrix(Matrix B) throws MatrixIndexesOutOfBounds {
         this.rows = B.rows;
@@ -65,7 +66,7 @@ public class Matrix {
     }
 
     /**
-     * Get number of rows of ann.classifier.Matrix.
+     * Get number of rows of Matrix.
      *
      * @return (int) number of rows.
      */
@@ -74,7 +75,7 @@ public class Matrix {
     }
 
     /**
-     * Get number of columns of ann.classifier.Matrix.
+     * Get number of columns of Matrix.
      *
      * @return (int) number of columns.
      */
@@ -83,10 +84,10 @@ public class Matrix {
     }
 
     /**
-     * Set value into specific cell in the ann.classifier.Matrix.
+     * Set value into specific cell in the Matrix.
      *
-     * @param row    (ann.classifier.Matrix row number).
-     * @param column (ann.classifier.Matrix column number).
+     * @param row    (Matrix row number).
+     * @param column (Matrix column number).
      * @param value  (double) value to insert.
      */
     protected void setValue(int row, int column, double value) throws MatrixIndexesOutOfBounds {
@@ -99,9 +100,9 @@ public class Matrix {
     /**
      * Retrieve value from specific cell.
      *
-     * @param row    (ann.classifier.Matrix row number).
-     * @param column (ann.classifier.Matrix column number).
-     * @return (double) value of specific ann.classifier.Matrix cell.
+     * @param row    (Matrix row number).
+     * @param column (Matrix column number).
+     * @return (double) value of specific Matrix cell.
      */
     protected double getValue(int row, int column) throws MatrixIndexesOutOfBounds {
         if (!(row > this.rows) && !(column > this.columns))
@@ -110,10 +111,10 @@ public class Matrix {
     }
 
     /**
-     * Multiply current ann.classifier.Matrix with given ann.classifier.Matrix (B).
+     * Multiply current Matrix with given Matrix (B).
      *
-     * @param B (ann.classifier.Matrix object).
-     * @return new ann.classifier.Matrix after multiplication.
+     * @param B (Matrix object).
+     * @return new Matrix after multiplication.
      */
     protected Matrix dot(Matrix B) throws InvalidMatrixOperation, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (vectorsMultiplication(this, B) != -1)// return multiplication value of 2 vectors.
@@ -137,10 +138,10 @@ public class Matrix {
     }
 
     /**
-     * Multiply (num) value to each cell of the ann.classifier.Matrix.
+     * Multiply (num) value to each cell of the Matrix.
      *
      * @param num (double value)
-     * @return ann.classifier.Matrix with updated values.
+     * @return Matrix with updated values.
      */
     protected Matrix multiply(double num) {
         for (int i = 0; i < this.rows; i++) {
@@ -153,8 +154,8 @@ public class Matrix {
     /**
      * Multiply each value to each cell of the Matrices.
      *
-     * @param B (ann.classifier.Matrix object)
-     * @return ann.classifier.Matrix with updated values.
+     * @param B (Matrix object)
+     * @return Matrix with updated values.
      */
     protected Matrix multiply(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
@@ -183,10 +184,10 @@ public class Matrix {
     }
 
     /**
-     * Add values from given ann.classifier.Matrix (B) to the current ann.classifier.Matrix.
+     * Add values from given Matrix (B) to the current Matrix.
      *
-     * @param B (ann.classifier.Matrix object).
-     * @return Modified ann.classifier.Matrix after addition.
+     * @param B (Matrix object).
+     * @return Modified Matrix after addition.
      */
     protected Matrix add(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
@@ -215,10 +216,10 @@ public class Matrix {
     }
 
     /**
-     * Add (num) value to each cell of the ann.classifier.Matrix.
+     * Add (num) value to each cell of the Matrix.
      *
      * @param num (double value)
-     * @return ann.classifier.Matrix with updated values.
+     * @return Matrix with updated values.
      */
     protected Matrix add(double num) {
         for (int i = 0; i < this.rows; i++) {
@@ -229,10 +230,10 @@ public class Matrix {
     }
 
     /**
-     * Subtract (num) value to each cell of the ann.classifier.Matrix.
+     * Subtract (num) value to each cell of the Matrix.
      *
      * @param num (double value)
-     * @return ann.classifier.Matrix with updated values.
+     * @return Matrix with updated values.
      */
     protected Matrix subtract(double num) {
         for (int i = 0; i < this.rows; i++) {
@@ -243,10 +244,10 @@ public class Matrix {
     }
 
     /**
-     * Subtract values from given ann.classifier.Matrix (B) to the current ann.classifier.Matrix.
+     * Subtract values from given Matrix (B) to the current Matrix.
      *
-     * @param B (ann.classifier.Matrix object).
-     * @return Modified ann.classifier.Matrix after subtraction.
+     * @param B (Matrix object).
+     * @return Modified Matrix after subtraction.
      */
     protected Matrix subtract(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
@@ -267,10 +268,10 @@ public class Matrix {
     }
 
     /**
-     * Divide (num) value to each cell of the ann.classifier.Matrix.
+     * Divide (num) value to each cell of the Matrix.
      *
      * @param num (double value)
-     * @return ann.classifier.Matrix with updated values.
+     * @return Matrix with updated values.
      */
     protected Matrix divide(double num) {
         for (int i = 0; i < this.rows; i++) {
@@ -281,10 +282,10 @@ public class Matrix {
     }
 
     /**
-     * Divide values from given ann.classifier.Matrix (B) to the current ann.classifier.Matrix.
+     * Divide values from given Matrix (B) to the current Matrix.
      *
-     * @param B (ann.classifier.Matrix object).
-     * @return Modified ann.classifier.Matrix after Division.
+     * @param B (Matrix object).
+     * @return Modified Matrix after Division.
      */
     protected Matrix divide(Matrix B) throws InvalidMatrixOperation {
         if (B.rows == this.rows && B.columns == 1) { // if 1D array
@@ -313,11 +314,11 @@ public class Matrix {
     }
 
     /**
-     * Transofrm ann.classifier.Matrix into other shape.
+     * Transform Matrix into other shape.
      *
      * @param n_rows    (number of rows).
      * @param n_columns (number of columns).
-     * @return Reshaped ann.classifier.Matrix.
+     * @return Reshaped Matrix.
      */
     protected Matrix reshape(int n_rows, int n_columns) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix flatten_matrix = Matrix.flat(this);
@@ -359,9 +360,9 @@ public class Matrix {
     }
 
     /**
-     * Raise all values in ann.classifier.Matrix by (E) exponent.
+     * Raise all values in Matrix by (E) exponent.
      *
-     * @return Modified ann.classifier.Matrix after subtraction.
+     * @return Modified Matrix after subtraction.
      */
     protected Matrix exp() {
         for (int i = 0; i < this.rows; i++) {
@@ -374,7 +375,7 @@ public class Matrix {
     /**
      * Transpose matrix from nxm to mxn.
      *
-     * @return transposed ann.classifier.Matrix.
+     * @return transposed Matrix.
      */
     protected Matrix transpose() throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(this.columns, this.rows);
@@ -386,7 +387,7 @@ public class Matrix {
     }
 
     /**
-     * Get specific row of the ann.classifier.Matrix.
+     * Get specific row of the Matrix.
      *
      * @param row (row number).
      * @return Vector of specific row.
@@ -400,7 +401,7 @@ public class Matrix {
     }
 
     /**
-     * Get specific column of the ann.classifier.Matrix.
+     * Get specific column of the Matrix.
      *
      * @param column (column number).
      * @return Vector of specific column.
@@ -414,9 +415,9 @@ public class Matrix {
     }
 
     /**
-     * Get shape of ann.classifier.Matrix
+     * Get shape of Matrix
      *
-     * @return 1 if ann.classifier.Matrix is Vector else 2.
+     * @return 1 if Matrix is Vector else 2.
      */
     protected int shape() {
         if (this.rows == 1 && this.columns >= 1)
@@ -446,7 +447,7 @@ public class Matrix {
      * Returns the indices of the maximum values of each column/row.
      *
      * @param axis (0 or 1).
-     * @return (ann.classifier.Matrix object) vector contains indices of the maximum value of each column/row.
+     * @return (Matrix object) vector contains indices of the maximum value of each column/row.
      */
     protected Matrix argmax(int axis) throws InvalidMatrixAxis, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (this.rows == 1 || this.columns == 1) // if vector return (this).
@@ -493,7 +494,7 @@ public class Matrix {
      * Return maximum value in each column/row of matrix.
      *
      * @param axis (0 or 1).
-     * @return (ann.classifier.Matrix object) vector with max values of each column/row.
+     * @return (Matrix object) vector with max values of each column/row.
      */
     protected Matrix max(int axis) throws InvalidMatrixAxis, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (this.rows == 1)
@@ -526,9 +527,9 @@ public class Matrix {
     }
 
     /**
-     * square root (num) value to each cell of the ann.classifier.Matrix.
+     * square root (num) value to each cell of the Matrix.
      *
-     * @return ann.classifier.Matrix with squared root values.
+     * @return Matrix with squared root values.
      */
     protected Matrix sqrt() {
         for (int i = 0; i < this.rows; i++) {
@@ -539,9 +540,10 @@ public class Matrix {
     }
 
     /**
-     * pow value by (num) value to each cell of the ann.classifier.Matrix.
+     * pow value by (num) value to each cell of the Matrix.
+     *
      * @param num (pow number).
-     * @return ann.classifier.Matrix with pow values.
+     * @return Matrix with pow values.
      */
     protected Matrix pow(double num) {
         for (int i = 0; i < this.rows; i++) {
@@ -552,10 +554,23 @@ public class Matrix {
     }
 
     /**
+     * transform every value in each cell to absolute value.
+     *
+     * @return absolute valued Matrix.
+     */
+    protected Matrix abs() {
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++)
+                this.matrix[i][j] = Math.abs(this.matrix[i][j]);
+        }
+        return this;
+    }
+
+    /**
      * Return summed values in each column/row of matrix.
      *
      * @param axis (0 or 1).
-     * @return (ann.classifier.Matrix object) vector with summed values of each column/row.
+     * @return (Matrix object) vector with summed values of each column/row.
      */
     protected Matrix sum(int axis) throws InvalidMatrixAxis, InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (axis == 0) {
@@ -583,9 +598,23 @@ public class Matrix {
     }
 
     /**
-     * Return the log (e) value of each cell of the ann.classifier.Matrix.
+     * Sum the entire values of the matrix into one value.
      *
-     * @return ann.classifier.Matrix with updated values.
+     * @return summed value.
+     */
+    protected double sum() {
+        double sum = 0.0;
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < columns; j++)
+                sum += this.matrix[i][j];
+        }
+        return sum;
+    }
+
+    /**
+     * Return the log (e) value of each cell of the Matrix.
+     *
+     * @return Matrix with updated values.
      */
     protected Matrix log() {
         for (int i = 0; i < this.rows; i++) {
@@ -600,7 +629,7 @@ public class Matrix {
     }
 
     /**
-     * Return the mean value of the ann.classifier.Matrix.
+     * Return the mean value of the Matrix.
      *
      * @return (double value).
      */
@@ -617,9 +646,9 @@ public class Matrix {
     }
 
     /**
-     * Prints ann.classifier.Matrix in 2D shape
+     * Prints Matrix in 2D shape
      *
-     * @return (Prettified ann.classifier.Matrix String)
+     * @return (Prettified Matrix String)
      */
     @Override
     public String toString() {
@@ -636,9 +665,9 @@ public class Matrix {
     }
 
     /**
-     * Compare values of current ann.classifier.Matrix to the given one.
+     * Compare values of current Matrix to the given one.
      *
-     * @param obj (ann.classifier.Matrix object)
+     * @param obj (Matrix object)
      * @return True if equals else false.
      */
     @Override
@@ -663,7 +692,7 @@ public class Matrix {
     /**
      * @param n_rows    (number of rows in matrix)
      * @param n_columns (number of columns in matrix)
-     * @return (nxm ann.classifier.Matrix filled with normal_distribution values)
+     * @return (nxm Matrix filled with normal_distribution values)
      */
     protected static Matrix random(int n_rows, int n_columns) throws InvalidMatrixDimension {
         Matrix temp = new Matrix(Math.abs(n_rows), Math.abs(n_columns));
@@ -679,10 +708,10 @@ public class Matrix {
      * For example, if an interval of [0, 1] is specified,
      * values smaller than 0 become 0, and values larger than 1 become 1.
      *
-     * @param B   (ann.classifier.Matrix object).
+     * @param B   (Matrix object).
      * @param min (minimal double value).
      * @param max (maximal double value).
-     * @return ann.classifier.Matrix with clipped values.
+     * @return Matrix with clipped values.
      */
     public static Matrix clip(Matrix B, double min, double max) throws InvalidMatrixDimension {
         Matrix temp = new Matrix(B.rows, B.columns);
@@ -700,11 +729,11 @@ public class Matrix {
     }
 
     /**
-     * Change every value of ann.classifier.Matrix to given (value) if it is less 0.
+     * Change every value of Matrix to given (value) if it is less 0.
      *
-     * @param B     (ann.classifier.Matrix object).
+     * @param B     (Matrix object).
      * @param value (double number).
-     * @return ann.classifier.Matrix modified with positive numbers.
+     * @return Matrix modified with positive numbers.
      */
     protected static Matrix maximum(Matrix B, double value) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(B.rows, B.columns);
@@ -718,12 +747,12 @@ public class Matrix {
     }
 
     /**
-     * Compare each values of ann.classifier.Matrix (A) to ann.classifier.Matrix (B)
+     * Compare each values of Matrix (A) to Matrix (B)
      * Set value 1 if equal else 0.
      *
-     * @param A (ann.classifier.Matrix object).
-     * @param B (ann.classifier.Matrix object).
-     * @return Boolean ann.classifier.Matrix of 1/0.
+     * @param A (Matrix object).
+     * @param B (Matrix object).
+     * @return Boolean Matrix of 1/0.
      */
     public static Matrix bitwiseCompare(Matrix A, Matrix B) throws InvalidMatrixDimension {
         if (A.rows != B.rows || A.columns != B.columns)
@@ -743,10 +772,10 @@ public class Matrix {
     }
 
     /**
-     * Create Diagonal (ones) ann.classifier.Matrix.
+     * Create Diagonal (ones) Matrix.
      *
      * @param n_rows (number of rows).
-     * @return Diagnal ann.classifier.Matrix.
+     * @return Diagonal Matrix.
      */
     public static Matrix eye(int n_rows) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (n_rows <= 0)
@@ -763,13 +792,28 @@ public class Matrix {
     }
 
     /**
-     * Create ann.classifier.Matrix that contains OneHot Vectos each row by given Vector (V).
+     * Create Matrix will all (1) values.
      *
-     * @param V (ann.classifier.Matrix object).
-     * @return ann.classifier.Matrix of OneHot Vectors.
+     * @param B (Matrix object).
+     * @return Diagonal Matrix of (1) values.
+     */
+    public static Matrix ones_like(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+        Matrix temp = new Matrix(B.rows, B.columns);
+        for (int i = 0; i < temp.rows; i++) {
+            for (int j = 0; j < temp.columns; j++)
+                temp.setValue(i, j, 1.0);
+        }
+        return temp;
+    }
+
+    /**
+     * Create Matrix that contains OneHot Vectors each row by given Vector (V).
+     *
+     * @param V (Matrix object).
+     * @return Matrix of OneHot Vectors.
      */
     public static Matrix oneHotVector(Matrix V) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
-        Matrix temp = new Matrix(V.columns, V.columns); //(m, m) ann.classifier.Matrix
+        Matrix temp = new Matrix(V.columns, V.columns); //(m, m) Matrix
 
         if (V.getRows() == 1)
             for (int i = 0; i < V.getColumns(); i++)
@@ -781,10 +825,10 @@ public class Matrix {
     }
 
     /**
-     * Create a 2D ann.classifier.Matrix with the array_like input as a diagonal to the new output array.
+     * Create a 2D Matrix with the array_like input as a diagonal to the new output array.
      *
-     * @param B (ann.classifier.Matrix object).
-     * @return Diagonal ann.classifier.Matrix with the given Vector values.
+     * @param B (Matrix object).
+     * @return Diagonal Matrix with the given Vector values.
      */
     public static Matrix diagflat(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (B.rows == 1) {
@@ -812,11 +856,11 @@ public class Matrix {
     }
 
     /**
-     * Create Diagonal (ones) ann.classifier.Matrix.
+     * Create Diagonal (ones) Matrix.
      *
      * @param n_rows    (number of rows).
      * @param n_columns (number of columns)
-     * @return Diagnal ann.classifier.Matrix.
+     * @return Diagonal Matrix.
      */
     public static Matrix eye(int n_rows, int n_columns) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (n_rows <= 0)
@@ -833,10 +877,10 @@ public class Matrix {
     }
 
     /**
-     * Flat ann.classifier.Matrix from 2D to 1D array.
+     * Flat Matrix from 2D to 1D array.
      *
-     * @param B (ann.classifier.Matrix object).
-     * @return flatted ann.classifier.Matrix.
+     * @param B (Matrix object).
+     * @return flatted Matrix.
      */
     protected static Matrix flat(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(1, B.rows * B.columns);
@@ -851,10 +895,10 @@ public class Matrix {
     }
 
     /**
-     * Returns ann.classifier.Matrix of zeros with the same shape and type as a given ann.classifier.Matrix.
+     * Returns Matrix of zeros with the same shape and type as a given Matrix.
      *
-     * @param B (ann.classifier.Matrix object).
-     * @return Zero Values ann.classifier.Matrix.
+     * @param B (Matrix object).
+     * @return Zero Values Matrix.
      */
     protected static Matrix zeros_like(Matrix B) throws InvalidMatrixDimension {
         return new Matrix(B.rows, B.columns);
@@ -863,9 +907,9 @@ public class Matrix {
     /**
      * Multiply 2 Vectors.
      *
-     * @param V1 (ann.classifier.Matrix object).
-     * @param V2 (ann.classifier.Matrix object).
-     * @return ann.classifier.Matrix of (V1xV2) size.
+     * @param V1 (Matrix object).
+     * @param V2 (Matrix object).
+     * @return Matrix of (V1xV2) size.
      */
     private static double vectorsMultiplication(Matrix V1, Matrix V2) {
         double sum_values = 0.0;
@@ -883,9 +927,9 @@ public class Matrix {
     }
 
     /**
-     * Sum all values in specific row of the ann.classifier.Matrix.
+     * Sum all values in specific row of the Matrix.
      *
-     * @param V   (ann.classifier.Matrix object).
+     * @param V   (Matrix object).
      * @param row (row number).
      * @return (double) values of sum.
      */
@@ -897,9 +941,9 @@ public class Matrix {
     }
 
     /**
-     * Sum all values in specific column of the ann.classifier.Matrix.
+     * Sum all values in specific column of the Matrix.
      *
-     * @param V      (ann.classifier.Matrix object).
+     * @param V      (Matrix object).
      * @param column (row number).
      * @return (double) values of sum.
      */
