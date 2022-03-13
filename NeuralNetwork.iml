@@ -7,14 +7,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="javafx.base" level="project" />
-    <orderEntry type="library" name="javafx.controls" level="project" />
-    <orderEntry type="library" name="javafx.fxml" level="project" />
-    <orderEntry type="library" name="javafx.graphics" level="project" />
-    <orderEntry type="library" name="javafx.media" level="project" />
-    <orderEntry type="library" name="javafx.swing" level="project" />
-    <orderEntry type="library" name="javafx.web" level="project" />
-    <orderEntry type="library" name="javafx-swt" level="project" />
-    <orderEntry type="library" name="javafx" level="project" />
+    <orderEntry type="library" name="commons-beanutils-1.9.3" level="project" />
+    <orderEntry type="library" name="commons-collections-3.2.2" level="project" />
+    <orderEntry type="library" name="commons-lang3-3.6" level="project" />
+    <orderEntry type="library" name="commons-logging-1.2" level="project" />
+    <orderEntry type="library" name="commons-text-1.1" level="project" />
+    <orderEntry type="library" name="opencsv-4.1" level="project" />
   </component>
 </module>

@@ -1,5 +1,12 @@
 package ann.classifier;
 
+import python.extender.PythonInterpreter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -24,7 +31,12 @@ public class NeuralNetwork {
     private double loss;
     private double accuracy;
     private boolean isLogged;
+    private boolean showMetrices;
 
+    private List<String> accuracy_logs;
+    private List<String> loss_logs;
+
+    private final static String MATRICES_DIR = "bin\\metrices";
 
     public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, int max_iterations) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension {
         this.n_inputs = n_inputs;
@@ -35,6 +47,9 @@ public class NeuralNetwork {
         this.loss = 0.0;
         this.accuracy = 0.0;
         this.isLogged = false;
+        this.showMetrices = false;
+        this.accuracy_logs = new ArrayList<>();
+        this.loss_logs = new ArrayList<>();
 
         this.input_layer = (new LayerDense(n_inputs, n_neurons));
         this.output_layer = (new LayerDense(n_neurons, n_outputs));
@@ -46,12 +61,16 @@ public class NeuralNetwork {
         for (int i = 0; i < (this.n_hidden + 1); i++)
             this.activations.add(new Activation_ReLU());
 
+        //logs headers
+        this.accuracy_logs.add("values\n");
+        this.loss_logs.add("values\n");
+
         // set optimizer
         validator(); //check for errors.
         buildOptimizer(optimizer);
     }
 
-    public void fit(Matrix X_train, Matrix y_train) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis {
+    public void fit(Matrix X_train, Matrix y_train) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis, IOException {
         raiseInfo(String.format("Training Started - inputs: %s | hidden_layers: %s | outputs: %s | learning_rate: %s", n_inputs, n_hidden, n_outputs, optimizer.get_learning_rate()));
         this.loss_activation = new Activation_Softmax_Loss_CategoricalCrossEntropy();
 
@@ -96,10 +115,15 @@ public class NeuralNetwork {
             // calculate accuracy
             this.accuracy = Matrix.bitwiseCompare(predictions.transpose(), y_train).mean();
 
-            //show logs
-            if (isLogged)
-                if (epoch % 50 == 0)
-                    System.out.printf("Epochs: %d | Accuracy: %.5f | Loss: %.5f | Data Loss: %.5f | Regularization Loss: %.5f%n", epoch, this.accuracy, this.loss, data_loss, regularization_loss);
+            // for analyzing purpose
+            if (epoch % (this.max_iterations/100) == 0){
+                if (isLogged)//show logs
+                    System.out.printf("Epochs: %d | Accuracy: %.5f | Loss: %.5f | Data Loss: %.10E | Regularization Loss: %.10E%n", epoch, this.accuracy, this.loss, data_loss, regularization_loss);
+
+                //collect logs
+                this.accuracy_logs.add(Double.toString(this.accuracy) + '\n');
+                this.loss_logs.add(Double.toString(this.loss) + '\n');
+            }
 
 
             //Backward pass
@@ -122,6 +146,10 @@ public class NeuralNetwork {
             this.optimizer.update_params(this.output_layer);
             this.optimizer.post_update_params();
         }
+
+        if (this.showMetrices) // show animated graphs of metrices.
+            this.showMetrices();
+
         System.out.printf("Training was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, this.loss);
     }
 
@@ -157,7 +185,7 @@ public class NeuralNetwork {
         // calculate accuracy
         this.accuracy = Matrix.bitwiseCompare(predictions.transpose(), y_test).mean();
 
-        System.out.printf("Testing was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, this.loss);
+        System.out.printf("Testing was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, loss);
 
 
     }
@@ -222,6 +250,27 @@ public class NeuralNetwork {
         this.isLogged = status;
     }
 
+    public void setMetrices(boolean status) {
+        this.showMetrices = status;
+    }
+
+    public void showMetrices() throws IOException {
+        FileWriter accuracy_writer = new FileWriter(NeuralNetwork.DirectoryAssurance(MATRICES_DIR, "accuracy_logs.csv"));
+        String accuracy_data = String.join(",", this.accuracy_logs);
+        accuracy_writer.write(accuracy_data);
+        accuracy_writer.close();
+
+        FileWriter loss_writer = new FileWriter(NeuralNetwork.DirectoryAssurance(MATRICES_DIR, "loss_logs.csv"));
+        String loss_data = String.join(",", this.loss_logs);
+        loss_writer.write(loss_data);
+        loss_writer.close();
+
+        // execute python script
+        System.out.println("Preparing data for visualization...");
+        PythonInterpreter.exec("python\\metrices_animation.py");
+    }
+
+
     private static void raiseWarning(String msg) {
         Logger logger = Logger.getLogger(NeuralNetwork.class.getName());
         logger.setLevel(Level.WARNING);
@@ -238,6 +287,14 @@ public class NeuralNetwork {
         final String ANSI_RESET = "\u001B[0m";
         final String ANSI_BLUE = "\u001B[34m";
         System.out.println(ANSI_BLUE + "INFO: " + msg + ANSI_RESET);
+    }
+
+    private static File DirectoryAssurance(String directory, String filename) {
+        File dir = new File(directory);
+        if (!dir.exists())
+            dir.mkdirs();
+
+        return new File(directory + "/" + filename);
     }
 }
 
