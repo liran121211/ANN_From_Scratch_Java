@@ -19,10 +19,8 @@ public class init {
         ann.setMetrices(true);
         ann.set_l2_regularizer(5e-4, 5e-4);
         ann.fit(x.get_training_spiral_data(), x.get_training_spiral_classes());
-//        ann.predict(y.get_training_spiral_data(), y.get_training_spiral_classes());
+        ann.predict(y.get_training_spiral_data(), y.get_training_spiral_classes());
 
-
-        //PythonInterpreter.exec("python\\binary_file_parser.py");
 
 
 
