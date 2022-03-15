@@ -25,10 +25,6 @@
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
     </li>
     <li><a href="#screenshots">Screenshots</a></li>
     <li><a href="#features">Features</a></li>
@@ -51,20 +47,20 @@
   
 <!-- GETTING STARTED -->
 ## Getting Started
-  import the library, and create a new object of [NeuralNetwork ann = new NeuralNetwork(n_inputs, n_neurons, n_hidden_layers, n_outputs, OPTIMIZER, ITERATIONS);]
-  use [fit(Matrix X_train, Matrix y_train)] function and send train data and train classifications.
-  use [predict(Matrix X_test, Matrix y_test)] function and send test data and test classifications / use can send your test data without classifications and get predictions for new data.
+ - import the library, and create a new object of [NeuralNetwork ann = new NeuralNetwork(n_inputs, n_neurons, n_hidden_layers, n_outputs, OPTIMIZER, ITERATIONS);]
+ - use [fit(Matrix X_train, Matrix y_train)] function and send train data and train classifications.
+ - use [predict(Matrix X_test, Matrix y_test)] function and send test data and test classifications / use can send your test data without classifications and get predictions for new data.
  
   
 <!-- ROADMAP -->
 ## Features
   4 Optimizers:
-    - SGD: Stochastic Gradient Descent
-    - Adagrad: Adaptive Gradient
-    - RMSprop: Root Mean Square Propagation
-    - Adam: Adaptive Momentum
-  Activation Functions: SoftMax, ReLU
-  Classification Type: CategorialCrossEntropy
+ - SGD: Stochastic Gradient Descent
+ - Adagrad: Adaptive Gradient
+ - RMSprop: Root Mean Square Propagation
+ - Adam: Adaptive Momentum
+ - Activation Functions: SoftMax, ReLU
+ - Classification Type: CategorialCrossEntropy
   
 <!-- LICENSE -->
 ## License
