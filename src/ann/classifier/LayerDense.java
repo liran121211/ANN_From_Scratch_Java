@@ -1,6 +1,9 @@
 package ann.classifier;
 
-public class LayerDense {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class LayerDense implements Serializable {
     private Matrix weights;
     private Matrix biases;
 
@@ -22,6 +25,9 @@ public class LayerDense {
     private double bias_regularizer_l1; // for penalty
     private double bias_regularizer_l2; // for penalty
 
+    @Serial
+    private static final long serialVersionUID = 6529685098267757604L;
+
     // Layer initialization
     protected LayerDense(int n_inputs, int n_neurons) throws InvalidMatrixDimension {
         this.weights = Matrix.random(n_inputs, n_neurons).multiply(0.01);
@@ -35,7 +41,7 @@ public class LayerDense {
     /**
      * Backward Pass.
      *
-     * @param d_values (ann.classifier.Matrix object).
+     * @param d_values (Matrix object).
      */
     protected void backward(Matrix d_values) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis, InvalidMatrixOperation {
         //Gradients on parameters
@@ -81,7 +87,7 @@ public class LayerDense {
     /**
      * Forward Pass.
      *
-     * @param inputs (ann.classifier.Matrix object).
+     * @param inputs (Matrix object).
      */
     protected void forward(Matrix inputs) throws MatrixIndexesOutOfBounds, InvalidMatrixOperation, InvalidMatrixDimension {
         this.inputs = inputs; //Remember input values

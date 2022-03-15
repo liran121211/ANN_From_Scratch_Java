@@ -1,11 +1,16 @@
 package ann.classifier;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Random;
 
-public class Matrix {
+public class Matrix implements Serializable {
     private final int rows;
     private final int columns;
     private final double[][] matrix;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757606L;
 
     /**
      * Default Matrix Constructor.
@@ -70,7 +75,7 @@ public class Matrix {
      *
      * @return (int) number of rows.
      */
-    public int getRows() {
+    protected int getRows() {
         return rows;
     }
 
@@ -79,7 +84,7 @@ public class Matrix {
      *
      * @return (int) number of columns.
      */
-    public int getColumns() {
+    protected int getColumns() {
         return columns;
     }
 
@@ -713,7 +718,7 @@ public class Matrix {
      * @param max (maximal double value).
      * @return Matrix with clipped values.
      */
-    public static Matrix clip(Matrix B, double min, double max) throws InvalidMatrixDimension {
+    protected static Matrix clip(Matrix B, double min, double max) throws InvalidMatrixDimension {
         Matrix temp = new Matrix(B.rows, B.columns);
         for (int i = 0; i < B.rows; i++) {
             for (int j = 0; j < B.columns; j++) {
@@ -754,7 +759,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Boolean Matrix of 1/0.
      */
-    public static Matrix bitwiseCompare(Matrix A, Matrix B) throws InvalidMatrixDimension {
+    protected static Matrix bitwiseCompare(Matrix A, Matrix B) throws InvalidMatrixDimension {
         if (A.rows != B.rows || A.columns != B.columns)
             throw new InvalidMatrixDimension(A, B);
 
@@ -777,7 +782,7 @@ public class Matrix {
      * @param n_rows (number of rows).
      * @return Diagonal Matrix.
      */
-    public static Matrix eye(int n_rows) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+    protected static Matrix eye(int n_rows) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (n_rows <= 0)
             throw new InvalidMatrixDimension(n_rows, n_rows);
 
@@ -797,7 +802,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Diagonal Matrix of (1) values.
      */
-    public static Matrix ones_like(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+    protected static Matrix ones_like(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(B.rows, B.columns);
         for (int i = 0; i < temp.rows; i++) {
             for (int j = 0; j < temp.columns; j++)
@@ -812,7 +817,7 @@ public class Matrix {
      * @param V (Matrix object).
      * @return Matrix of OneHot Vectors.
      */
-    public static Matrix oneHotVector(Matrix V) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+    protected static Matrix oneHotVector(Matrix V) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         Matrix temp = new Matrix(V.columns, V.columns); //(m, m) Matrix
 
         if (V.getRows() == 1)
@@ -830,7 +835,7 @@ public class Matrix {
      * @param B (Matrix object).
      * @return Diagonal Matrix with the given Vector values.
      */
-    public static Matrix diagflat(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+    protected static Matrix diagflat(Matrix B) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (B.rows == 1) {
             Matrix temp = new Matrix(B.columns, B.columns);
             for (int i = 0; i < temp.rows; i++) {
@@ -862,7 +867,7 @@ public class Matrix {
      * @param n_columns (number of columns)
      * @return Diagonal Matrix.
      */
-    public static Matrix eye(int n_rows, int n_columns) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+    protected static Matrix eye(int n_rows, int n_columns) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
         if (n_rows <= 0)
             throw new InvalidMatrixDimension(n_rows, n_columns);
 

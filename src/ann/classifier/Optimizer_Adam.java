@@ -1,6 +1,9 @@
 package ann.classifier;
 
-public class Optimizer_Adam implements Optimization {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Optimizer_Adam implements Optimization, Serializable {
     //Adam - Adaptive Momentum
     private double learning_rate;
     private double current_learning_rate;
@@ -9,6 +12,9 @@ public class Optimizer_Adam implements Optimization {
     private int iterations;
     private double beta_1;
     private double beta_2;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757610L;
 
     //Initialize optimizer - set settings
     protected Optimizer_Adam(double learning_rate, double decay, double beta_1, double beta_2) {

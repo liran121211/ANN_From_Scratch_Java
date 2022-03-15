@@ -1,7 +1,13 @@
 package ann.classifier;
 
-class Loss_CategoricalCrossEntropy implements Loss {
+import java.io.Serial;
+import java.io.Serializable;
+
+class Loss_CategoricalCrossEntropy implements Loss , Serializable {
     private Matrix d_inputs;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757605L;
 
     @Override
     //Backward pass
@@ -36,13 +42,13 @@ class Loss_CategoricalCrossEntropy implements Loss {
                 for (int i = 0; i < samples; i++)
                     correct_confidences.setValue(i, 0, y_pred_clipped.getValue(i, (int) y_true.getValue(0, i)));
             } else //2D array label data
-                throw new IndexOutOfBoundsException(String.format("Prediction ann.classifier.Matrix (%s, %s) and Labels ann.classifier.Matrix (, %s) has different shapes", y_pred.getRows(), y_pred.getColumns(), y_true.getColumns()));
+                throw new IndexOutOfBoundsException(String.format("Prediction Matrix (%s, %s) and Labels Matrix (, %s) has different shapes", y_pred.getRows(), y_pred.getColumns(), y_true.getColumns()));
 
         } else {
             if (y_pred.getRows() == y_true.getRows() && y_pred.getColumns() == y_true.getColumns())
                 correct_confidences = y_pred_clipped.multiply(y_true); //Losses
             else
-                throw new IndexOutOfBoundsException(String.format("Prediction ann.classifier.Matrix (%s, %s) and Labels ann.classifier.Matrix (%s, %s) has different shapes", y_pred.getRows(), y_pred.getColumns(), y_true.getRows(), y_true.getColumns()));
+                throw new IndexOutOfBoundsException(String.format("Prediction Matrix (%s, %s) and Labels Matrix (%s, %s) has different shapes", y_pred.getRows(), y_pred.getColumns(), y_true.getRows(), y_true.getColumns()));
         }
 
         return correct_confidences.log().multiply(-1);

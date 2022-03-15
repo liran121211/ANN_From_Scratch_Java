@@ -2,9 +2,7 @@ package ann.classifier;
 
 import python.extender.PythonInterpreter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class NeuralNetwork {
+public class NeuralNetwork implements Serializable{
     private int n_inputs;
     private int n_neurons;
     private int n_hidden;
@@ -36,7 +34,11 @@ public class NeuralNetwork {
     private List<String> accuracy_logs;
     private List<String> loss_logs;
 
+    @Serial
+    private static final long serialVersionUID = 6529685098267757608L;
+
     private final static String MATRICES_DIR = "bin\\metrices";
+
 
     public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, int max_iterations) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension {
         this.n_inputs = n_inputs;
@@ -116,7 +118,7 @@ public class NeuralNetwork {
             this.accuracy = Matrix.bitwiseCompare(predictions.transpose(), y_train).mean();
 
             // for analyzing purpose
-            if (epoch % (this.max_iterations/100) == 0){
+            if (epoch % (this.max_iterations/1) == 0){
                 if (isLogged)//show logs
                     System.out.printf("Epochs: %d | Accuracy: %.5f | Loss: %.5f | Data Loss: %.10E | Regularization Loss: %.10E%n", epoch, this.accuracy, this.loss, data_loss, regularization_loss);
 
@@ -178,6 +180,7 @@ public class NeuralNetwork {
         //Calculate accuracy from output of activation2 and targets
         //calculate values along first axis
         Matrix predictions = this.loss_activation.output().argmax(1);
+        System.out.println(predictions);
 
         if (y_test.shape() == 2)
             y_test = new Matrix(y_test.argmax(1));
@@ -295,6 +298,22 @@ public class NeuralNetwork {
             dir.mkdirs();
 
         return new File(directory + "/" + filename);
+    }
+
+    public static void SaveObject(NeuralNetwork obj)throws IOException{
+        String fileName= "Test.txt";
+        FileOutputStream fos = new FileOutputStream(fileName);
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(obj);
+        oos.close();
+    }
+
+    public static NeuralNetwork LoadObject(String fname) throws IOException, ClassNotFoundException {
+        FileInputStream fin = new FileInputStream(fname);
+        ObjectInputStream ois = new ObjectInputStream(fin);
+        NeuralNetwork neural_network= (NeuralNetwork) ois.readObject();
+        ois.close();
+        return neural_network;
     }
 }
 

@@ -1,15 +1,19 @@
 package ann.classifier;
 
-public class Activation_Softmax_Loss_CategoricalCrossEntropy implements Activation {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Activation_Softmax_Loss_CategoricalCrossEntropy implements Activation, Serializable {
     //Softmax classifier - combined Softmax activation
     //and cross-entropy loss for faster backward step
 
     private Activation activation;
     private Loss loss;
     private Matrix output;
-
-
     private Matrix d_inputs;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757603L;
 
     //Creates activation and loss function objects
     protected Activation_Softmax_Loss_CategoricalCrossEntropy() {

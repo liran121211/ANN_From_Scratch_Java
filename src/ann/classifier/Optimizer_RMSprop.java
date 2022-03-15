@@ -1,6 +1,9 @@
 package ann.classifier;
 
-public class Optimizer_RMSprop implements Optimization {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Optimizer_RMSprop implements Optimization, Serializable {
     //RMSprop - Root Mean Square Propagation
     private double learning_rate;
     private double current_learning_rate;
@@ -8,6 +11,9 @@ public class Optimizer_RMSprop implements Optimization {
     private double epsilon;
     private int iterations;
     private double rho;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757611L;
 
     //Initialize optimizer - set settings
     protected Optimizer_RMSprop(double learning_rate, double decay, double rho) {

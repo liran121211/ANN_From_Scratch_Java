@@ -1,11 +1,17 @@
 package ann.classifier;
 
-public class Optimizer_SGD implements Optimization {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Optimizer_SGD implements Optimization, Serializable {
     private double learning_rate;
     private double current_learning_rate;
     private double decay;
     private double momentum;
     private int iterations;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757612L;
 
     //Initialize optimizer - set settings
     protected Optimizer_SGD(double learning_rate, double decay, double momentum) {

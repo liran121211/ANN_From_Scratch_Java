@@ -1,13 +1,6 @@
-import ann.classifier.MatrixExceptionHandler;
-import ann.classifier.NeuralNetwork;
-import ann.classifier.Dataset;
+import ann.classifier.*;
 import python.extender.PythonInterpreter;
-
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class init {
@@ -16,15 +9,10 @@ public class init {
         Dataset x = new Dataset();
         Dataset y = new Dataset();
         ann.setLogs(true);
-        ann.setMetrices(true);
+        ann.setMetrices(false);
         ann.set_l2_regularizer(5e-4, 5e-4);
-        ann.fit(x.get_training_spiral_data(), x.get_training_spiral_classes());
-//        ann.predict(y.get_training_spiral_data(), y.get_training_spiral_classes());
-
-
-        //PythonInterpreter.exec("python\\binary_file_parser.py");
-
-
+        //ann.fit(x.get_training_spiral_data(), x.get_training_spiral_classes());
+        //ann.predict(new Matrix(1,2,new double[][]{{0.0978738, 0.3729515}}), new Matrix(1,3,new double[][]{{1.0,2.0,0.0}}).transpose());
 
     }
 }

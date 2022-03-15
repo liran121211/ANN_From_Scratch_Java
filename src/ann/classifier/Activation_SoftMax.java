@@ -1,9 +1,15 @@
 package ann.classifier;
 
-public class Activation_SoftMax implements Activation {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Activation_SoftMax implements Activation, Serializable {
     private Matrix outputs;
     private Matrix inputs;
     private Matrix d_inputs;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757602L;
 
     @Override
     public void forward(Matrix inputs) throws InvalidMatrixDimension, InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixAxis {

@@ -1,9 +1,15 @@
 package ann.classifier;
 
-public class Activation_ReLU implements Activation {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Activation_ReLU implements Activation, Serializable {
     private Matrix outputs;
     private Matrix inputs;
     private Matrix d_inputs;
+
+    @Serial
+    private static final long serialVersionUID = 6529685098267757601L;
 
     @Override
     // Forward pass
