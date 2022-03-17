@@ -89,9 +89,12 @@ public class LayerDense implements Serializable {
      *
      * @param inputs (Matrix object).
      */
-    protected void forward(Matrix inputs) throws MatrixIndexesOutOfBounds, InvalidMatrixOperation, InvalidMatrixDimension {
+    protected void forward(Matrix inputs, boolean training) throws MatrixIndexesOutOfBounds, InvalidMatrixOperation, InvalidMatrixDimension {
         this.inputs = inputs; //Remember input values
-        this.output = addBias(inputs.dot(this.weights), this.biases); //Calculate output values from inputs, weights and biases
+        if (!training)
+            this.output = new Matrix(this.inputs);
+        else
+            this.output = addBias(inputs.dot(this.weights), this.biases); //Calculate output values from inputs, weights and biases
     }
 
     protected Matrix getWeights() {

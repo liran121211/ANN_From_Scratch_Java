@@ -3,14 +3,12 @@ package ann.classifier;
 import python.extender.PythonInterpreter;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class NeuralNetwork implements Serializable{
+public class NeuralNetwork implements Serializable {
     private int n_inputs;
     private int n_neurons;
     private int n_hidden;
@@ -33,6 +31,7 @@ public class NeuralNetwork implements Serializable{
 
     private List<String> accuracy_logs;
     private List<String> loss_logs;
+    private Matrix predictions;
 
     @Serial
     private static final long serialVersionUID = 6529685098267757608L;
@@ -63,6 +62,8 @@ public class NeuralNetwork implements Serializable{
         for (int i = 0; i < (this.n_hidden + 1); i++)
             this.activations.add(new Activation_ReLU());
 
+        this.predictions = new Matrix(1, n_outputs);
+
         //logs headers
         this.accuracy_logs.add("values\n");
         this.loss_logs.add("values\n");
@@ -78,7 +79,7 @@ public class NeuralNetwork implements Serializable{
 
         for (int epoch = 0; epoch < this.max_iterations; epoch++) {
             //Perform a forward pass of our training data through this layer
-            this.input_layer.forward(X_train);
+            this.input_layer.forward(X_train, true);
 
             //Perform a forward pass through activation function
             //takes the output of first dense layer here
@@ -88,10 +89,10 @@ public class NeuralNetwork implements Serializable{
             //Perform a forward pass through second Dense layer
             //takes outputs of activation function of first layer as inputs
             for (int i = 0; i < this.n_hidden; i++) {
-                this.hidden_layers.get(i).forward(this.activations.get(i).output());
+                this.hidden_layers.get(i).forward(this.activations.get(i).output(), true);
                 this.activations.get(i + 1).forward(this.hidden_layers.get(i).getOutput());
             }
-            this.output_layer.forward(this.activations.get(this.n_hidden).output());
+            this.output_layer.forward(this.activations.get(this.n_hidden).output(), true);
 
             //Perform a forward pass through the activation/loss function
             //takes the output of second dense layer here and returns loss
@@ -118,7 +119,11 @@ public class NeuralNetwork implements Serializable{
             this.accuracy = Matrix.bitwiseCompare(predictions.transpose(), y_train).mean();
 
             // for analyzing purpose
-            if (epoch % (this.max_iterations/1) == 0){
+            double batch_size = ((double) this.max_iterations) / 100;
+            if (batch_size < 1)
+                batch_size = 1;
+
+            if (epoch % (int) batch_size == 0) {
                 if (isLogged)//show logs
                     System.out.printf("Epochs: %d | Accuracy: %.5f | Loss: %.5f | Data Loss: %.10E | Regularization Loss: %.10E%n", epoch, this.accuracy, this.loss, data_loss, regularization_loss);
 
@@ -155,10 +160,10 @@ public class NeuralNetwork implements Serializable{
         System.out.printf("Training was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, this.loss);
     }
 
-    public void predict(Matrix X_test, Matrix y_test) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis {
-        raiseInfo(String.format("Testing Started - inputs: %s | hidden_layers: %s | outputs: %s | learning_rate: %s", n_inputs, n_hidden, n_outputs, optimizer.get_learning_rate()));
+    public void validation(Matrix X_test, Matrix y_test) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis {
+        raiseInfo(String.format("Validation Started - inputs: %s | hidden_layers: %s | outputs: %s ", n_inputs, n_hidden, n_outputs));
         //Perform a forward pass of our testing data through this layer
-        this.input_layer.forward(X_test);
+        this.input_layer.forward(X_test, true);
 
 
         //Perform a forward pass through activation function
@@ -168,10 +173,10 @@ public class NeuralNetwork implements Serializable{
         //Perform a forward pass through second Dense layer
         //takes outputs of activation function of first layer as inputs
         for (int i = 0; i < this.n_hidden; i++) {
-            this.hidden_layers.get(i).forward(this.activations.get(i).output());
+            this.hidden_layers.get(i).forward(this.activations.get(i).output(), true);
             this.activations.get(i + 1).forward(this.hidden_layers.get(i).getOutput());
         }
-        this.output_layer.forward(this.activations.get(this.n_hidden).output());
+        this.output_layer.forward(this.activations.get(this.n_hidden).output(), true);
 
         //Perform a forward pass through the activation/loss function
         //takes the output of second dense layer here and returns loss
@@ -180,7 +185,6 @@ public class NeuralNetwork implements Serializable{
         //Calculate accuracy from output of activation2 and targets
         //calculate values along first axis
         Matrix predictions = this.loss_activation.output().argmax(1);
-        System.out.println(predictions);
 
         if (y_test.shape() == 2)
             y_test = new Matrix(y_test.argmax(1));
@@ -188,9 +192,35 @@ public class NeuralNetwork implements Serializable{
         // calculate accuracy
         this.accuracy = Matrix.bitwiseCompare(predictions.transpose(), y_test).mean();
 
-        System.out.printf("Testing was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, loss);
+        System.out.printf("Validation was completed successfully. Accuracy: %.5f | Loss: %.5f%n", this.accuracy, loss);
+    }
+
+    public void predict(Matrix X_test) throws InvalidMatrixDimension, InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixAxis {
+        raiseInfo(String.format("Testing Started - inputs: %s | hidden_layers: %s | outputs: %s ", n_inputs, n_hidden, n_outputs));
+
+        //Perform a forward pass of our testing data through this layer
+        this.input_layer.forward(X_test, true);
 
 
+        //Perform a forward pass through activation function
+        //takes the output of first dense layer here
+        this.activations.get(0).forward(this.input_layer.getOutput());
+
+        //Perform a forward pass through second Dense layer
+        //takes outputs of activation function of first layer as inputs
+        for (int i = 0; i < this.n_hidden; i++) {
+            this.hidden_layers.get(i).forward(this.activations.get(i).output(), true);
+            this.activations.get(i + 1).forward(this.hidden_layers.get(i).getOutput());
+        }
+        this.output_layer.forward(this.activations.get(this.n_hidden).output(), true);
+
+
+        //Perform a forward pass through the activation/loss function
+        //takes the output of second dense layer here and returns loss
+        this.loss_activation.forward(this.output_layer.getOutput());
+
+        //Calculate predictions
+        this.predictions = new Matrix(this.loss_activation.output().argmax(1));
     }
 
     private void buildOptimizer(String name) {
@@ -227,6 +257,10 @@ public class NeuralNetwork implements Serializable{
         }
     }
 
+    public Matrix get_predictions() {
+        return this.predictions;
+    }
+
     /**
      * Set L1 regularization to penalty the network.
      *
@@ -255,6 +289,10 @@ public class NeuralNetwork implements Serializable{
 
     public void setMetrices(boolean status) {
         this.showMetrices = status;
+    }
+
+    public void set_max_iterations(int max_iterations) {
+        this.max_iterations = max_iterations;
     }
 
     public void showMetrices() throws IOException {
@@ -300,8 +338,8 @@ public class NeuralNetwork implements Serializable{
         return new File(directory + "/" + filename);
     }
 
-    public static void SaveObject(NeuralNetwork obj)throws IOException{
-        String fileName= "Test.txt";
+    public static void SaveObject(NeuralNetwork obj) throws IOException {
+        String fileName = "Doodle_NN.txt";
         FileOutputStream fos = new FileOutputStream(fileName);
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(obj);
@@ -311,7 +349,7 @@ public class NeuralNetwork implements Serializable{
     public static NeuralNetwork LoadObject(String fname) throws IOException, ClassNotFoundException {
         FileInputStream fin = new FileInputStream(fname);
         ObjectInputStream ois = new ObjectInputStream(fin);
-        NeuralNetwork neural_network= (NeuralNetwork) ois.readObject();
+        NeuralNetwork neural_network = (NeuralNetwork) ois.readObject();
         ois.close();
         return neural_network;
     }

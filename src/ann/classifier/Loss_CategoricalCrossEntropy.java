@@ -56,8 +56,8 @@ class Loss_CategoricalCrossEntropy implements Loss , Serializable {
 
     @Override
     public double calculate(Matrix output) {
-
         return output.mean();
+
     }
 
     @Override

@@ -448,6 +448,40 @@ public class Matrix implements Serializable {
         return max_value;
     }
 
+
+    protected int argmax() throws MatrixIndexesOutOfBounds {
+        int max_index = 0;
+        double max_val;
+
+        if (this.columns == 1) {
+
+            for (int i = 0; i < this.getColumns(); i++) {
+                max_val = this.getValue(0, i); //reset max val to cell (0,i)
+                max_index = 0; //reset max index to cell (0,i)
+                for (int j = 1; j < this.getRows(); j++)
+                    if (this.getValue(j, i) > max_val) {
+                        max_val = this.getValue(j, i);
+                        max_index = j;
+                    }
+            }
+            return max_index;
+        }
+        if (this.rows == 1) {
+
+            for (int i = 0; i < this.getRows(); i++) {
+                max_val = this.getValue(i, 0); //reset max val to cell (i,0)
+                max_index = 0; //reset max index to cell (i,0)
+                for (int j = 1; j < this.getColumns(); j++)
+                    if (this.getValue(i, j) > max_val) {
+                        max_val = this.getValue(i, j);
+                        max_index = j;
+                    }
+            }
+            return max_index;
+        } else
+            throw new IndexOutOfBoundsException();
+    }
+
     /**
      * Returns the indices of the maximum values of each column/row.
      *
@@ -957,6 +991,21 @@ public class Matrix implements Serializable {
         for (int i = 0; i < V.rows; i++)
             sum_values += V.matrix[i][column];
         return sum_values;
+    }
+
+    protected static Matrix slice(Matrix B, int start, int end) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds {
+        if (end < start || end == start || start > B.columns || end > B.columns)
+            throw new MatrixIndexesOutOfBounds(B.rows, B.columns);
+
+        Matrix temp = new Matrix(end - start, B.columns);
+        int temp_index = 0;
+        for (int i = start; i < end; i++) {
+            for (int j = 0; j < temp.columns; j++) {
+                temp.setValue(temp_index, j, B.getValue(i, j));
+            }
+            temp_index++;
+        }
+        return temp;
     }
 }
 

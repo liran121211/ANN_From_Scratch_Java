@@ -54,8 +54,9 @@ public class Activation_Softmax_Loss_CategoricalCrossEntropy implements Activati
     }
 
     @Override
-    public void forward(Matrix inputs) {
-        //NOT IN USE
+    public void forward(Matrix inputs) throws InvalidMatrixOperation, InvalidMatrixAxis, MatrixIndexesOutOfBounds, InvalidMatrixDimension {
+        this.activation.forward(inputs); //Output layer's activation function
+        this.output = this.activation.output(); //Set the output
     }
 
     @Override
