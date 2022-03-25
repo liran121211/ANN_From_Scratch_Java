@@ -19,6 +19,7 @@ public class NeuralNetwork implements Serializable {
     private LayerDense input_layer;
     private LayerDense output_layer;
     private List<LayerDense> hidden_layers;
+    private List<LayerDropout> dropout_layers;
 
     private Optimization optimizer;
     private List<Activation> activations;
@@ -35,11 +36,10 @@ public class NeuralNetwork implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 6529685098267757608L;
-
     private final static String MATRICES_DIR = "bin\\metrices";
 
 
-    public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, int max_iterations) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension {
+    public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, int max_iterations) throws InvalidMatrixDimension {
         this.n_inputs = n_inputs;
         this.n_neurons = n_neurons;
         this.n_hidden = n_hidden;
@@ -55,6 +55,7 @@ public class NeuralNetwork implements Serializable {
         this.input_layer = (new LayerDense(n_inputs, n_neurons));
         this.output_layer = (new LayerDense(n_neurons, n_outputs));
         this.hidden_layers = new ArrayList<>(n_hidden);
+        this.dropout_layers = null;
         for (int i = 0; i < n_hidden; i++)
             this.hidden_layers.add(new LayerDense(n_neurons, n_neurons));
 
@@ -73,7 +74,46 @@ public class NeuralNetwork implements Serializable {
         buildOptimizer(optimizer);
     }
 
-    public void fit(Matrix X_train, Matrix y_train) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis, IOException {
+    public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, int max_iterations, double dropout) throws InvalidMatrixDimension {
+        this.n_inputs = n_inputs;
+        this.n_neurons = n_neurons;
+        this.n_hidden = n_hidden;
+        this.n_outputs = n_outputs;
+        this.max_iterations = max_iterations;
+        this.loss = 0.0;
+        this.accuracy = 0.0;
+        this.isLogged = false;
+        this.showMetrices = false;
+        this.accuracy_logs = new ArrayList<>();
+        this.loss_logs = new ArrayList<>();
+
+        this.input_layer = (new LayerDense(n_inputs, n_neurons));
+        this.output_layer = (new LayerDense(n_neurons, n_outputs));
+        this.hidden_layers = new ArrayList<>(n_hidden);
+        for (int i = 0; i < n_hidden; i++)
+            this.hidden_layers.add(new LayerDense(n_neurons, n_neurons));
+
+        this.dropout_layers = new ArrayList<>(n_hidden + 1); // input layer + (n) hidden layers
+        for (int i = 0; i < (n_hidden + 1); i++) {
+            this.dropout_layers.add(new LayerDropout(dropout));
+        }
+
+        this.activations = new ArrayList<>(this.n_hidden + 1); // input + hidden + output
+        for (int i = 0; i < (this.n_hidden + 1); i++)
+            this.activations.add(new Activation_ReLU());
+
+        this.predictions = new Matrix(1, n_outputs);
+
+        //logs headers
+        this.accuracy_logs.add("values\n");
+        this.loss_logs.add("values\n");
+
+        // set optimizer
+        validator(); //check for errors.
+        buildOptimizer(optimizer);
+    }
+
+    public void fit(Matrix X_train, Matrix y_train) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis, IOException, InvalidMatrixArgument {
         raiseInfo(String.format("Training Started - inputs: %s | hidden_layers: %s | outputs: %s | learning_rate: %s", n_inputs, n_hidden, n_outputs, optimizer.get_learning_rate()));
         this.loss_activation = new Activation_Softmax_Loss_CategoricalCrossEntropy();
 
@@ -85,14 +125,28 @@ public class NeuralNetwork implements Serializable {
             //takes the output of first dense layer here
             this.activations.get(0).forward(this.input_layer.getOutput());
 
+            if (this.dropout_layers != null) // if dropout provided
+                this.dropout_layers.get(0).forward(this.activations.get(0).output(), true);
 
             //Perform a forward pass through second Dense layer
             //takes outputs of activation function of first layer as inputs
-            for (int i = 0; i < this.n_hidden; i++) {
-                this.hidden_layers.get(i).forward(this.activations.get(i).output(), true);
-                this.activations.get(i + 1).forward(this.hidden_layers.get(i).getOutput());
+            if (this.dropout_layers != null) { // if dropout provided
+                for (int i = 0; i < this.n_hidden; i++) {
+                    this.hidden_layers.get(i).forward(this.dropout_layers.get(i).getOutput(), true);
+                    this.activations.get(i + 1).forward(this.hidden_layers.get(i).getOutput());
+                    this.dropout_layers.get(i + 1).forward(this.activations.get(i + 1).output(), true);
+                }
+            } else { // no dropout provided
+                for (int i = 0; i < this.n_hidden; i++) {
+                    this.hidden_layers.get(i).forward(this.activations.get(i).output(), true);
+                    this.activations.get(i + 1).forward(this.hidden_layers.get(i).getOutput());
+                }
             }
-            this.output_layer.forward(this.activations.get(this.n_hidden).output(), true);
+
+            if (this.dropout_layers != null)// if dropout provided
+                this.output_layer.forward(this.dropout_layers.get(this.n_hidden).getOutput(), true);
+            else
+                this.output_layer.forward(this.activations.get(this.n_hidden).output(), true);
 
             //Perform a forward pass through the activation/loss function
             //takes the output of second dense layer here and returns loss
@@ -136,14 +190,32 @@ public class NeuralNetwork implements Serializable {
             //Backward pass
             int pointer = this.activations.size() - 1; // last object (cell) in activations
             this.loss_activation.backward(this.loss_activation.output(), y_train);
-
             this.output_layer.backward(this.loss_activation.d_inputs());
-            this.activations.get(pointer).backward(output_layer.get_d_inputs());
-            for (int i = this.n_hidden; i > 0; i--) {
-                this.hidden_layers.get(i - 1).backward(this.activations.get(pointer--).d_inputs());
-                this.activations.get(pointer).backward(this.hidden_layers.get(i - 1).get_d_inputs());
+
+            if (this.dropout_layers != null) { // if dropout provided
+                this.dropout_layers.get(pointer).backward(this.output_layer.get_d_inputs());
+                this.activations.get(pointer).backward(this.dropout_layers.get(pointer).get_d_inputs());
+            } else {
+                this.activations.get(pointer).backward(output_layer.get_d_inputs());
             }
-            this.input_layer.backward(this.activations.get(pointer).d_inputs());
+
+            if (this.dropout_layers != null) { // if dropout provided
+                for (int i = this.n_hidden; i > 0; i--) {
+                    this.hidden_layers.get(i - 1).backward(this.dropout_layers.get(pointer--).get_d_inputs());
+                    this.activations.get(pointer).backward(this.hidden_layers.get(i - 1).get_d_inputs());
+                    this.dropout_layers.get(pointer).backward(this.activations.get(pointer).d_inputs());
+                }
+            } else {
+                for (int i = this.n_hidden; i > 0; i--) {
+                    this.hidden_layers.get(i - 1).backward(this.activations.get(pointer--).d_inputs());
+                    this.activations.get(pointer).backward(this.hidden_layers.get(i - 1).get_d_inputs());
+                }
+            }
+
+            if (this.dropout_layers != null) // if dropout provided
+                this.input_layer.backward(this.dropout_layers.get(pointer).get_d_inputs());
+            else
+                this.input_layer.backward(this.activations.get(pointer).d_inputs());
 
             //Update weights and biases
             this.optimizer.pre_update_params();

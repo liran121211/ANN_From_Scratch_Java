@@ -2,6 +2,7 @@ package ann.classifier;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.security.InvalidAlgorithmParameterException;
 import java.util.Random;
 
 public class Matrix implements Serializable {
@@ -978,6 +979,30 @@ public class Matrix implements Serializable {
             sum_values += V.matrix[row][i];
         return sum_values;
     }
+
+    public static Matrix binomial(int n_times, double probability, int size) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixArgument {
+        if (probability > 1.0)
+            throw new InvalidMatrixArgument (probability);
+
+        Matrix temp = new Matrix(size, 1);
+        for (int i = 0; i < temp.rows; i++) {
+            for (int j = 0; j < temp.columns; j++) {
+                double log_q = Math.log(1.0 - probability);
+                int x = 0;
+                double sum = 0;
+                for (; ; ) {
+                    sum += Math.log(Math.random()) / (n_times - x);
+                    if (sum < log_q) {
+                        temp.setValue(i, j, x);
+                        break;
+                    }
+                    x++;
+                }
+            }
+        }
+        return temp;
+    }
+
 
     /**
      * Sum all values in specific column of the Matrix.

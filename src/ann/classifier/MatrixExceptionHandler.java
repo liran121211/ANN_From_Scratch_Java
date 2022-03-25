@@ -53,3 +53,21 @@ class InvalidMatrixAxis extends MatrixExceptionHandler {
         super(String.format("axis %s is invalid, only 0/1 axis are valid", axis));
     }
 }
+
+class InvalidMatrixArgument extends MatrixExceptionHandler {
+    public InvalidMatrixArgument(String arg) {
+        super(String.format("invalid argument %s sent to function", arg));
+    }
+
+    public InvalidMatrixArgument(int arg) {
+        super(String.format("invalid argument %s sent to function", arg));
+    }
+
+    public InvalidMatrixArgument(double arg) {
+        super(String.format("invalid argument %s sent to function", arg));
+    }
+
+    public InvalidMatrixArgument(char arg) {
+        super(String.format("invalid argument %s sent to function", arg));
+    }
+}

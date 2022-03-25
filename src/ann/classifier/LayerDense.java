@@ -109,10 +109,6 @@ public class LayerDense implements Serializable {
         return output;
     }
 
-    protected Matrix getInputs() {
-        return inputs;
-    }
-
     protected Matrix get_d_weights() {
         return d_weights;
     }
@@ -163,14 +159,6 @@ public class LayerDense implements Serializable {
 
     protected void setBiases(Matrix biases) {
         this.biases = biases;
-    }
-
-    protected void set_d_weights(Matrix d_weights) {
-        this.d_weights = d_weights;
-    }
-
-    protected void set_d_biases(Matrix d_biases) {
-        this.d_biases = d_biases;
     }
 
     protected void set_weight_momentums(Matrix weight_momentum) {
