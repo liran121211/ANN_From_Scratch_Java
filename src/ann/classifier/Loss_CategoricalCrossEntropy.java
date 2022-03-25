@@ -10,23 +10,6 @@ class Loss_CategoricalCrossEntropy implements Loss , Serializable {
     private static final long serialVersionUID = 6529685098267757605L;
 
     @Override
-    //Backward pass
-    public void backward(Matrix d_values, Matrix y_true) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixOperation {
-        int samples = d_values.getRows(); //Number of samples
-
-        // If labels are sparse, turn them into one-hot vector
-        if (y_true.getRows() == 1)
-            y_true = Matrix.oneHotVector(y_true);
-
-        // Calculate gradient
-        this.d_inputs = y_true.multiply(-1).divide(d_values);
-
-        // Normalize gradient
-        this.d_inputs = this.d_inputs.divide(samples);
-
-    }
-
-    @Override
     //Forward pass
     public Matrix forward(Matrix y_pred, Matrix y_true) throws IndexOutOfBoundsException, InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation {
         int samples = y_pred.getRows();
@@ -52,6 +35,23 @@ class Loss_CategoricalCrossEntropy implements Loss , Serializable {
         }
 
         return correct_confidences.log().multiply(-1);
+    }
+
+    @Override
+    //Backward pass
+    public void backward(Matrix d_values, Matrix y_true) throws MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixOperation {
+        int samples = d_values.getRows(); //Number of samples
+
+        // If labels are sparse, turn them into one-hot vector
+        if (y_true.getRows() == 1)
+            y_true = Matrix.oneHotVector(y_true);
+
+        // Calculate gradient
+        this.d_inputs = y_true.multiply(-1).divide(d_values);
+
+        // Normalize gradient
+        this.d_inputs = this.d_inputs.divide(samples);
+
     }
 
     @Override

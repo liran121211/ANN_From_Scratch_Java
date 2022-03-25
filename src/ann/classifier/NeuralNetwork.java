@@ -3,6 +3,7 @@ package ann.classifier;
 import python.extender.PythonInterpreter;
 
 import java.io.*;
+import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -23,7 +24,7 @@ public class NeuralNetwork implements Serializable {
 
     private Optimization optimizer;
     private List<Activation> activations;
-    private Activation loss_activation;
+    private Activation loss_function;
 
     private double loss;
     private double accuracy;
@@ -39,7 +40,7 @@ public class NeuralNetwork implements Serializable {
     private final static String MATRICES_DIR = "bin\\metrices";
 
 
-    public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, int max_iterations) throws InvalidMatrixDimension {
+    public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, String classifier, int max_iterations) throws InvalidMatrixDimension {
         this.n_inputs = n_inputs;
         this.n_neurons = n_neurons;
         this.n_hidden = n_hidden;
@@ -72,9 +73,10 @@ public class NeuralNetwork implements Serializable {
         // set optimizer
         validator(); //check for errors.
         buildOptimizer(optimizer);
+        buildClassifier(classifier);
     }
 
-    public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, int max_iterations, double dropout) throws InvalidMatrixDimension {
+    public NeuralNetwork(int n_inputs, int n_neurons, int n_hidden, int n_outputs, String optimizer, String classifier, int max_iterations, double dropout) throws InvalidMatrixDimension {
         this.n_inputs = n_inputs;
         this.n_neurons = n_neurons;
         this.n_hidden = n_hidden;
@@ -111,11 +113,11 @@ public class NeuralNetwork implements Serializable {
         // set optimizer
         validator(); //check for errors.
         buildOptimizer(optimizer);
+        buildClassifier(classifier);
     }
 
     public void fit(Matrix X_train, Matrix y_train) throws InvalidMatrixOperation, MatrixIndexesOutOfBounds, InvalidMatrixDimension, InvalidMatrixAxis, IOException, InvalidMatrixArgument {
         raiseInfo(String.format("Training Started - inputs: %s | hidden_layers: %s | outputs: %s | learning_rate: %s", n_inputs, n_hidden, n_outputs, optimizer.get_learning_rate()));
-        this.loss_activation = new Activation_Softmax_Loss_CategoricalCrossEntropy();
 
         for (int epoch = 0; epoch < this.max_iterations; epoch++) {
             //Perform a forward pass of our training data through this layer
@@ -150,7 +152,7 @@ public class NeuralNetwork implements Serializable {
 
             //Perform a forward pass through the activation/loss function
             //takes the output of second dense layer here and returns loss
-            double data_loss = this.loss_activation.forward(this.output_layer.getOutput(), y_train);
+            double data_loss = this.loss_function.forward(this.output_layer.getOutput(), y_train);
 
             // Calculate regularization penalty
             double regularization_loss = 0.0;
@@ -164,7 +166,21 @@ public class NeuralNetwork implements Serializable {
 
             //Calculate accuracy from output of activation2 and targets
             //calculate values along first axis
-            Matrix predictions = this.loss_activation.output().argmax(1);
+            Matrix predictions = null;
+            if (this.loss_function instanceof Activation_Softmax_Loss_CategoricalCrossEntropy)
+                predictions = this.loss_function.output().argmax(1);
+            else{
+                for (int i = 0; i < this.loss_function.output().getRows(); i++) {
+                    for (int j = 0; j < this.loss_function.output().getColumns(); j++) {
+                        if (this.loss_function.output().getValue(i, j) > 0.5)
+                            this.loss_function.output().setValue(i, j, 1);
+                        else
+                            this.loss_function.output().setValue(i, j, 0);
+                    }
+                }
+                predictions = this.loss_function.output();
+            }
+
 
             if (y_train.shape() == 2)
                 y_train = new Matrix(y_train.argmax(1));
@@ -189,8 +205,8 @@ public class NeuralNetwork implements Serializable {
 
             //Backward pass
             int pointer = this.activations.size() - 1; // last object (cell) in activations
-            this.loss_activation.backward(this.loss_activation.output(), y_train);
-            this.output_layer.backward(this.loss_activation.d_inputs());
+            this.loss_function.backward(this.loss_function.output(), y_train);
+            this.output_layer.backward(this.loss_function.d_inputs());
 
             if (this.dropout_layers != null) { // if dropout provided
                 this.dropout_layers.get(pointer).backward(this.output_layer.get_d_inputs());
@@ -252,11 +268,11 @@ public class NeuralNetwork implements Serializable {
 
         //Perform a forward pass through the activation/loss function
         //takes the output of second dense layer here and returns loss
-        double loss = this.loss_activation.forward(this.output_layer.getOutput(), y_test);
+        double loss = this.loss_function.forward(this.output_layer.getOutput(), y_test);
 
         //Calculate accuracy from output of activation2 and targets
         //calculate values along first axis
-        Matrix predictions = this.loss_activation.output().argmax(1);
+        Matrix predictions = this.loss_function.output().argmax(1);
 
         if (y_test.shape() == 2)
             y_test = new Matrix(y_test.argmax(1));
@@ -289,10 +305,10 @@ public class NeuralNetwork implements Serializable {
 
         //Perform a forward pass through the activation/loss function
         //takes the output of second dense layer here and returns loss
-        this.loss_activation.forward(this.output_layer.getOutput());
+        this.loss_function.forward(this.output_layer.getOutput());
 
         //Calculate predictions
-        this.predictions = new Matrix(this.loss_activation.output().argmax(1));
+        this.predictions = new Matrix(this.loss_function.output().argmax(1));
     }
 
     private void buildOptimizer(String name) {
@@ -307,6 +323,17 @@ public class NeuralNetwork implements Serializable {
         else {
             raiseWarning(String.format("[%s] optimizer does not exist, setting to [adam] by default...", name));
             this.optimizer = new Optimizer_Adam();
+        }
+    }
+
+    private void buildClassifier(String name) {
+        if (name.toLowerCase().compareTo("binary") == 0)
+            this.loss_function = new Activation_Sigmoid_Loss_BinaryCrossEntropy();
+        else if (name.toLowerCase().compareTo("categorical") == 0)
+            this.loss_function = new Activation_Softmax_Loss_CategoricalCrossEntropy();
+        else {
+            raiseWarning(String.format("[%s] classifier does not exist, setting to [categorical] by default...", name));
+            this.loss_function = new Activation_Softmax_Loss_CategoricalCrossEntropy();
         }
     }
 

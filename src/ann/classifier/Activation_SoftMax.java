@@ -52,10 +52,6 @@ public class Activation_SoftMax implements Activation, Serializable {
         return outputs;
     }
 
-    public Matrix inputs() {
-        return inputs;
-    }
-
     @Override
     public double forward(Matrix inputs, Matrix y_true)  {
         //NOT IN USE

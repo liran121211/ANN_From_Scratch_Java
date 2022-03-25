@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class init {
     public static void main(String[] args) throws MatrixExceptionHandler, IOException {
-        NeuralNetwork ann = new NeuralNetwork(2, 64, 1, 3, "adam", 10000);
+        NeuralNetwork ann = new NeuralNetwork(2, 64, 1, 3, "adam", "categorical", 10000);
 //        Dataset x = new Dataset();
 //        Dataset y = new Dataset();
 //        ann.setLogs(true);

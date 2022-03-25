@@ -686,6 +686,39 @@ public class Matrix implements Serializable {
     }
 
     /**
+     * Return the mean value of the Matrix depends on pecific axis.
+     * @param axis (0 or 1) axis.
+     * @return (Matrix object).
+     */
+    protected Matrix mean(int axis) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixAxis {
+        double mean = 0.0;
+
+        if (axis == 0) {
+            Matrix temp = new Matrix(1, this.columns);
+
+            for (int i = 0; i < this.getColumns(); i++) {
+                for (int j = 0; j < this.getRows(); j++)
+                    mean += this.getValue(j, i);
+                temp.setValue(0, i, mean / this.rows);
+                mean = 0.0;
+            }
+            return temp;
+        }
+        if (axis == 1) {
+            Matrix temp = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.getRows(); i++) {
+                for (int j = 0; j < this.getColumns(); j++)
+                    mean += this.getValue(i, j);
+                temp.setValue(i, 0, mean / this.columns);
+                mean = 0.0;
+            }
+            return temp;
+
+        } else
+            throw new InvalidMatrixAxis(axis);
+    }
+
+    /**
      * Prints Matrix in 2D shape
      *
      * @return (Prettified Matrix String)
@@ -982,7 +1015,7 @@ public class Matrix implements Serializable {
 
     public static Matrix binomial(int n_times, double probability, int size) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixArgument {
         if (probability > 1.0)
-            throw new InvalidMatrixArgument (probability);
+            throw new InvalidMatrixArgument(probability);
 
         Matrix temp = new Matrix(size, 1);
         for (int i = 0; i < temp.rows; i++) {
