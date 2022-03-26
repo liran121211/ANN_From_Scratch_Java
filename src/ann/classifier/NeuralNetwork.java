@@ -166,21 +166,7 @@ public class NeuralNetwork implements Serializable {
 
             //Calculate accuracy from output of activation2 and targets
             //calculate values along first axis
-            Matrix predictions = null;
-            if (this.loss_function instanceof Activation_Softmax_Loss_CategoricalCrossEntropy)
-                predictions = this.loss_function.output().argmax(1);
-            else{
-                for (int i = 0; i < this.loss_function.output().getRows(); i++) {
-                    for (int j = 0; j < this.loss_function.output().getColumns(); j++) {
-                        if (this.loss_function.output().getValue(i, j) > 0.5)
-                            this.loss_function.output().setValue(i, j, 1);
-                        else
-                            this.loss_function.output().setValue(i, j, 0);
-                    }
-                }
-                predictions = this.loss_function.output();
-            }
-
+            Matrix predictions = calculatePrediction(this.loss_function);
 
             if (y_train.shape() == 2)
                 y_train = new Matrix(y_train.argmax(1));
@@ -410,6 +396,23 @@ public class NeuralNetwork implements Serializable {
         PythonInterpreter.exec("python\\metrices_animation.py");
     }
 
+    private Matrix calculatePrediction(Activation loss_function) throws InvalidMatrixAxis, MatrixIndexesOutOfBounds, InvalidMatrixDimension {
+        if (loss_function instanceof Activation_Softmax_Loss_CategoricalCrossEntropy)
+            return this.loss_function.output().argmax(1);
+
+        if (loss_function instanceof Activation_Sigmoid_Loss_BinaryCrossEntropy) {
+            for (int i = 0; i < this.loss_function.output().getRows(); i++) {
+                for (int j = 0; j < this.loss_function.output().getColumns(); j++) {
+                    if (this.loss_function.output().getValue(i, j) > 0.5)
+                        this.loss_function.output().setValue(i, j, 1);
+                    else
+                        this.loss_function.output().setValue(i, j, 0);
+                }
+            }
+            return this.loss_function.output();
+        } else
+            throw new Error("loss function does not exists");
+    }
 
     private static void raiseWarning(String msg) {
         Logger logger = Logger.getLogger(NeuralNetwork.class.getName());

@@ -13,13 +13,13 @@ public class Loss_BinaryCrossEntropy implements Loss, Serializable {
     public Matrix forward(Matrix y_pred, Matrix y_true) throws InvalidMatrixDimension, MatrixIndexesOutOfBounds, InvalidMatrixOperation, InvalidMatrixAxis {
         Matrix y_pred_clipped = Matrix.clip(y_pred, 1e-7, 1 - 1e-7);
 
-        Matrix step1 = y_true.transpose();
-        Matrix step2 = y_pred_clipped.log();
+        Matrix step1 = new Matrix(y_true).transpose();
+        Matrix step2 = new Matrix(y_pred_clipped).log();
         Matrix step3 = step1.multiply(step2);
 
-        Matrix step4 = y_pred_clipped.multiply(-1).subtract(-1);
+        Matrix step4 = new Matrix(y_pred_clipped).multiply(-1).subtract(-1);
         Matrix step5 = step4.log();
-        Matrix step6 = y_true.multiply(-1).subtract(-1).transpose();
+        Matrix step6 = new Matrix(y_true).multiply(-1).subtract(-1).transpose();
         Matrix step7 = step6.multiply(step5);
         Matrix sample_losses = (step3.add(step7)).multiply(-1);
 
@@ -39,10 +39,10 @@ public class Loss_BinaryCrossEntropy implements Loss, Serializable {
         Matrix clipped_d_values = Matrix.clip(d_values, 1e-7, 1 - 1e-7);
 
         //Calculate gradient
-        Matrix step1 = y_true.multiply(-1).subtract(-1).transpose();
-        Matrix step2 = clipped_d_values.multiply(-1).subtract(-1);
+        Matrix step1 = new Matrix(y_true).multiply(-1).subtract(-1).transpose();
+        Matrix step2 = new Matrix(clipped_d_values).multiply(-1).subtract(-1);
         Matrix step3 = step1.divide(step2);
-        Matrix step4 = y_true.transpose().divide(clipped_d_values);
+        Matrix step4 = new Matrix(y_true).transpose().divide(clipped_d_values);
         Matrix step5 = step4.subtract(step3).multiply(-1);
         this.d_inputs = step5.divide(outputs);
 
